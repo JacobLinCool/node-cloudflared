@@ -9,5 +9,5 @@ docs
 
 # ignore config files
 .eslintrc.js
-jest.config.js
+jest.config.cjs
 # tsup.config.ts
