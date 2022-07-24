@@ -42,9 +42,11 @@ export async function install_linux(to: string): Promise<string> {
     }
 
     await download(url, to);
+    await new Promise((r) => setTimeout(r, 100));
     fs.chmodSync(to, "755");
     return to;
 }
+
 export async function install_macos(to: string): Promise<string> {
     const url = MACOS_URL[process.arch];
 
