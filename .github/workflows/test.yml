@@ -35,5 +35,5 @@ jobs:
             - name: Build
               run: pnpm i && pnpm build
 
-            - name: Check Version
-              run: node lib/index.js -v
+            - name: Test
+              run: pnpm test
