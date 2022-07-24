@@ -57,6 +57,7 @@ export async function install_macos(to: string): Promise<string> {
     process.env.VERBOSE && console.log(`Extracting to ${to}`);
     execSync(`tar -xzf ${path.basename(`${to}.tgz`)}`, { cwd: path.dirname(to) });
     fs.unlinkSync(`${to}.tgz`);
+    fs.renameSync(`${path.dirname(to)}/cloudflared`, to);
     return to;
 }
 export async function install_windows(to: string): Promise<string> {
