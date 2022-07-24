@@ -42,8 +42,18 @@ There is an extra command: `cloudflared remove-bin`, which will remove the `clou
 ## Library Usage
 
 ```ts
-import { install } from "cloudflared";
+import { bin, install } from "cloudflared";
+import fs from "node:fs";
+import { spawn } from "node:child_process";
 
-// install cloudflared binary
-install("where/to/install/executable");
+if (!fs.existsSync(bin)) {
+    // install cloudflared binary
+    await install(bin);
+}
+
+// run cloudflared
+spawn(bin, ["--version"], { stdio: "inherit" });
 ```
+
+`bin`: The path of the binary.
+`install`: A function that installs the binary to the given path.
