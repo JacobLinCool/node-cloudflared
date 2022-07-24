@@ -42,6 +42,7 @@ export async function install_linux(to: string): Promise<string> {
     }
 
     await download(url, to);
+    fs.chmodSync(to, "755");
     return to;
 }
 export async function install_macos(to: string): Promise<string> {
