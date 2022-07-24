@@ -44,7 +44,7 @@ There is an extra command: `cloudflared remove-bin`, which will remove the `clou
 
 ## Library Usage
 
-## Binary Path & Install
+### Binary Path & Install
 
 ```js
 import { bin, install } from "cloudflared";
@@ -63,7 +63,7 @@ spawn(bin, ["--version"], { stdio: "inherit" });
 - `bin`: The path of the binary.
 - `install`: A function that installs the binary to the given path.
 
-## Tunnel
+### Tunnel
 
 Checkout [`examples/tunnel.js`](examples/tunnel.js).
 
