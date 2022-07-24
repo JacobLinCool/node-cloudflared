@@ -11,3 +11,5 @@ docs
 .eslintrc.js
 jest.config.cjs
 # tsup.config.ts
+
+examples
