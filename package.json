@@ -1,11 +1,12 @@
 {
     "name": "cloudflared",
-    "version": "0.0.0",
+    "version": "0.0.1",
     "description": "Cloudflared in Node.",
     "type": "module",
     "module": "lib/install.js",
     "main": "lib/install.cjs",
     "bin": "lib/index.js",
+    "types": "lib/install.d.ts",
     "scripts": {
         "test": "jest --coverage",
         "dev": "tsup --watch",
@@ -20,7 +21,6 @@
     ],
     "author": "JacobLinCool <jacoblincool@gmail.com> (https://github.com/JacobLinCool)",
     "license": "MIT",
-    "types": "lib/index.d.ts",
     "files": [
         "lib",
         "scripts"
@@ -38,5 +38,13 @@
         "tsup": "^6.1.3",
         "typedoc": "^0.23.8",
         "typescript": "^4.7.4"
+    },
+    "homepage": "https://github.com/JacobLinCool/node-cloudflared#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/JacobLinCool/node-cloudflared.git"
+    },
+    "bugs": {
+        "url": "https://github.com/JacobLinCool/node-cloudflared/issues"
     }
 }
