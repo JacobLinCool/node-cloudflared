@@ -1,0 +1,39 @@
+name: Test
+
+on:
+    push:
+        branches:
+            - main
+    pull_request_target:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    test:
+        strategy:
+            matrix:
+                os:
+                    - ubuntu-latest
+                    - windows-latest
+                    - macos-latest
+
+        name: "${{ matrix.os }}"
+        runs-on: ${{ matrix.os }}
+        env:
+            VERBOSE: 1
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+
+            - name: Setup PNPM
+              uses: pnpm/action-setup@v2.2.2
+              with:
+                  version: latest
+
+            - name: Build
+              run: pnpm i && pnpm build
+
+            - name: Check Version
+              run: node dist/index.js -v

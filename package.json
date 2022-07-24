@@ -1,0 +1,42 @@
+{
+    "name": "cloudflared",
+    "version": "0.0.0",
+    "description": "Cloudflared in Node.",
+    "type": "module",
+    "module": "lib/install.js",
+    "main": "lib/install.cjs",
+    "bin": "lib/index.js",
+    "scripts": {
+        "test": "jest --coverage",
+        "dev": "tsup --watch",
+        "build": "tsup",
+        "docs": "typedoc ./src/",
+        "format": "prettier --write '**/*.{js,ts,jsx,tsx,json,yml,yaml,md,html}' --ignore-path .gitignore",
+        "lint": "eslint .",
+        "postinstall": "node scripts/postinstall.js && node lib/index.js -v"
+    },
+    "keywords": [
+        "cloudflared"
+    ],
+    "author": "JacobLinCool <jacoblincool@gmail.com> (https://github.com/JacobLinCool)",
+    "license": "MIT",
+    "types": "lib/index.d.ts",
+    "files": [
+        "lib",
+        "scripts"
+    ],
+    "devDependencies": {
+        "@types/jest": "^28.1.6",
+        "@types/node": "^18.0.6",
+        "@typescript-eslint/eslint-plugin": "^5.30.7",
+        "@typescript-eslint/parser": "^5.30.7",
+        "eslint": "^8.20.0",
+        "eslint-config-prettier": "^8.5.0",
+        "jest": "^28.1.3",
+        "prettier": "^2.7.1",
+        "ts-jest": "^28.0.7",
+        "tsup": "^6.1.3",
+        "typedoc": "^0.23.8",
+        "typescript": "^4.7.4"
+    }
+}
