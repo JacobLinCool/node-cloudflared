@@ -26,11 +26,16 @@ async function main() {
     }
 
     const sub = spawn(exe, args, { shell: true, stdio: "inherit" });
+
     sub.on("exit", (code) => {
         if (typeof code === "number") {
             process.exit(code);
         } else {
             process.exit(1);
         }
+    });
+
+    process.on("SIGINT", () => {
+        sub.kill("SIGINT");
     });
 }
