@@ -1,23 +1,26 @@
 {
     "name": "cloudflared",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Cloudflared in Node.",
     "type": "module",
-    "module": "lib/install.js",
-    "main": "lib/install.cjs",
+    "module": "lib/lib.js",
+    "main": "lib/lib.cjs",
     "bin": "lib/index.js",
-    "types": "lib/install.d.ts",
+    "types": "lib/lib.d.ts",
     "scripts": {
         "test": "jest --coverage",
         "dev": "tsup --watch",
         "build": "tsup",
-        "docs": "typedoc ./src/",
+        "docs": "typedoc ./src/lib.ts",
         "format": "prettier --write '**/*.{js,ts,jsx,tsx,json,yml,yaml,md,html}' --ignore-path .gitignore",
         "lint": "eslint .",
         "postinstall": "node scripts/postinstall.js && node lib/index.js -v"
     },
     "keywords": [
-        "cloudflared"
+        "cloudflared",
+        "macos",
+        "windows",
+        "linux"
     ],
     "author": "JacobLinCool <jacoblincool@gmail.com> (https://github.com/JacobLinCool)",
     "license": "MIT",

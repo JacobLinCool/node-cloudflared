@@ -20,6 +20,11 @@ const WINDOWS_URL: Partial<Record<typeof process.arch, string>> = {
     ia32: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-386.exe",
 };
 
+/**
+ * Install cloudflared to the given path.
+ * @param to The path to the binary to install.
+ * @returns The path to the binary that was installed.
+ */
 export async function install(to: string): Promise<string> {
     if (process.platform === "linux") {
         return install_linux(to);
