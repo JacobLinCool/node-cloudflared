@@ -36,4 +36,4 @@ jobs:
               run: pnpm i && pnpm build
 
             - name: Check Version
-              run: node dist/index.js -v
+              run: node lib/index.js -v
