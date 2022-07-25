@@ -1,10 +1,10 @@
 import { ChildProcess } from "node:child_process";
 import fs from "node:fs";
-import { bin, install, tunnel } from "../lib.js";
+import { bin, install, tunnel, service } from "../lib.js";
 
 process.env.VERBOSE = "1";
 
-jest.setTimeout(30000);
+jest.setTimeout(60_000);
 
 describe("install", () => {
     it("should install binary", async () => {
@@ -27,4 +27,32 @@ describe("tunnel", () => {
         expect(child).toBeInstanceOf(ChildProcess);
         stop();
     });
+});
+
+describe("service", () => {
+    const TOKEN = process.env.TUNNEL_TOKEN;
+    if (TOKEN && ["darwin", "linux"].includes(process.platform)) {
+        beforeAll(() => {
+            if (service.exists()) {
+                service.uninstall();
+            }
+        });
+
+        it("should work", async () => {
+            expect(service.exists()).toBe(false);
+            service.install(TOKEN);
+            expect(service.exists()).toBe(true);
+
+            await new Promise((r) => setTimeout(r, 15_000));
+
+            const current = service.current();
+            expect(current.tunnelID.length).toBeGreaterThan(0);
+            expect(current.connectorID.length).toBeGreaterThan(0);
+            expect(current.connections.length).toBeGreaterThan(0);
+            expect(current.metrics.length).toBeGreaterThan(0);
+            expect(current.config.ingress?.length).toBeGreaterThan(0);
+
+            service.uninstall();
+        });
+    }
 });
