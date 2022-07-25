@@ -1,5 +1,6 @@
 import { spawn, ChildProcess } from "node:child_process";
 import { bin } from "./constants.js";
+import { Connection } from "./types.js";
 
 /**
  *  Create a tunnel.
@@ -70,10 +71,4 @@ export function tunnel(options: Record<string, string | number | null> = {}): {
     const stop = () => child.kill("SIGINT");
 
     return { url, connections, child, stop };
-}
-
-export interface Connection {
-    id: string;
-    ip: string;
-    location: string;
 }
