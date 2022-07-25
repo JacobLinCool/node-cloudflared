@@ -123,3 +123,36 @@ Connections Ready! [
 ]
 tunnel process exited with code 0
 ```
+
+### Service
+
+Checkout [`examples/service.js`](examples/service.js).
+
+```js
+import { service } from "cloudflared";
+
+console.log("Cloudflared Service Example.");
+main();
+
+async function main() {
+    if (service.exists()) {
+        console.log("Service is running.");
+        const current = service.current();
+        for (const { service, hostname } of current.config.ingress) {
+            console.log(`  - ${service} -> ${hostname}`);
+        }
+        console.log("metrics server:", current.metrics);
+    } else {
+        console.log("Service is not running.");
+    }
+}
+```
+
+```sh
+❯ node examples/service.js
+Cloudflared Service Example.
+Service is running.
+  - http://localhost:12345 -> sub.example.com
+  - http_status:404 -> undefined
+metrics server: 127.0.0.1:49177/metrics
+```
