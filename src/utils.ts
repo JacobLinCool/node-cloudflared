@@ -19,11 +19,11 @@ export function tunnel(options: Record<string, string | number | null> = {}): {
     const args: string[] = ["tunnel"];
     for (const [key, value] of Object.entries(options)) {
         if (typeof value === "string") {
-            args.push(`--${key}`, value);
+            args.push(`${key}`, value);
         } else if (typeof value === "number") {
-            args.push(`--${key}`, value.toString());
+            args.push(`${key}`, value.toString());
         } else if (value === null) {
-            args.push(`--${key}`);
+            args.push(`${key}`);
         }
     }
 

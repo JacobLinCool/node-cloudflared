@@ -75,7 +75,7 @@ main();
 
 async function main() {
     // run: cloudflared tunnel --hello-world
-    const { url, connections, child, stop } = tunnel({ "hello-world": null });
+    const { url, connections, child, stop } = tunnel({ "--hello-world": null });
 
     // show the url
     console.log("LINK:", await url);
