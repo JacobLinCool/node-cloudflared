@@ -1,6 +1,6 @@
 {
     "name": "cloudflared",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "Cloudflared in Node.",
     "type": "module",
     "module": "lib/lib.js",
@@ -20,7 +20,9 @@
         "cloudflared",
         "macos",
         "windows",
-        "linux"
+        "linux",
+        "cli",
+        "lib"
     ],
     "author": "JacobLinCool <jacoblincool@gmail.com> (https://github.com/JacobLinCool)",
     "license": "MIT",
