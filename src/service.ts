@@ -51,7 +51,7 @@ export class NotInstalledError extends Error {
  * Install Cloudflared service.
  * @param token Tunnel service token.
  */
-export function install(token: string): void {
+export function install(token?: string): void {
     if (process.platform !== "darwin") {
         throw new Error(`Not Implemented on platform ${process.platform}`);
     }
@@ -60,7 +60,13 @@ export function install(token: string): void {
         throw new AlreadyInstalledError();
     }
 
-    spawnSync(bin, ["service", "install", token]);
+    const args = ["service", "install"];
+
+    if (token) {
+        args.push(token);
+    }
+
+    spawnSync(bin, args);
 }
 
 /**
