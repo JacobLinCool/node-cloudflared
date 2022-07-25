@@ -1,5 +1,5 @@
 import { spawn, ChildProcess } from "node:child_process";
-import { bin } from "./constants";
+import { bin } from "./constants.js";
 
 /**
  *  Create a tunnel.

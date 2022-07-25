@@ -1,13 +1,13 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig((options) => ({
-    entry: ["src/index.ts", "src/lib.ts"],
+    entry: ["src/*.ts"],
     outDir: "lib",
     target: "node14",
     format: ["cjs", "esm"],
     shims: true,
     clean: true,
     splitting: false,
-    // minify: !options.watch,
-    dts: !options.watch,
+    bundle: false,
+    dts: options.watch ? false : { entry: "src/lib.ts" },
 }));

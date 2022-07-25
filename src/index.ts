@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import { spawn } from "node:child_process";
-import { bin, install } from "./lib";
+import { bin, install } from "./lib.js";
 
 main();
 

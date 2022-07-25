@@ -1,6 +1,6 @@
 import { ChildProcess } from "node:child_process";
 import fs from "node:fs";
-import { bin, install, tunnel } from "../lib";
+import { bin, install, tunnel } from "../lib.js";
 
 process.env.VERBOSE = "1";
 
