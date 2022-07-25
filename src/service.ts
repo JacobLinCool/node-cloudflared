@@ -27,7 +27,7 @@ export const MACOS_SERVICE_PATH = {
 /**
  * Cloudflared Service API.
  */
-export const service = { install, uninstall, exists, log, err, current };
+export const service = { install, uninstall, exists, log, err, current, clean };
 
 /**
  * Throw when service is already installed.
@@ -185,6 +185,22 @@ export function current(): {
         metrics: match.metrics?.[1] ?? "",
         config,
     };
+}
+
+/**
+ * Clean up service log files.
+ */
+export function clean(): void {
+    if (process.platform !== "darwin") {
+        throw new Error(`Not Implemented on platform ${process.platform}`);
+    }
+
+    if (exists()) {
+        throw new AlreadyInstalledError();
+    }
+
+    fs.rmSync(MACOS_SERVICE_PATH.OUT, { force: true });
+    fs.rmSync(MACOS_SERVICE_PATH.ERR, { force: true });
 }
 
 /**
