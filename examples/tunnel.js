@@ -1,4 +1,4 @@
-import { tunnel } from "../lib/lib.js";
+import { tunnel } from "cloudflared";
 
 console.log("Cloudflared Tunnel Example.");
 main();

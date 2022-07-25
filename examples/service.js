@@ -1,4 +1,4 @@
-import { service } from "../lib/lib.js";
+import { service } from "cloudflared";
 
 console.log("Cloudflared Service Example.");
 main();
