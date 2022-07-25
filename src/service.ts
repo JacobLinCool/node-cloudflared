@@ -6,11 +6,19 @@ import { Connection } from "./types.js";
 
 /**
  * Cloudflared launchd identifier.
+ * @platform macOS
  */
 export const identifier = "com.cloudflare.cloudflared";
 
 /**
+ * Cloudflared service name.
+ * @platform linux
+ */
+export const service_name = "cloudflared.service";
+
+/**
  * Path of service related files.
+ * @platform macOS
  */
 export const MACOS_SERVICE_PATH = {
     PLIST: is_root()
@@ -25,9 +33,20 @@ export const MACOS_SERVICE_PATH = {
 };
 
 /**
+ * Path of service related files.
+ * @platform linux
+ */
+export const LINUX_SERVICE_PATH = {
+    SYSTEMD: `/etc/systemd/system/${service_name}`,
+    SERVICE: "/etc/init.d/cloudflared",
+    SERVICE_OUT: "/var/log/cloudflared.log",
+    SERVICE_ERR: "/var/log/cloudflared.err",
+};
+
+/**
  * Cloudflared Service API.
  */
-export const service = { install, uninstall, exists, log, err, current, clean };
+export const service = { install, uninstall, exists, log, err, current, clean, journal };
 
 /**
  * Throw when service is already installed.
@@ -50,9 +69,10 @@ export class NotInstalledError extends Error {
 /**
  * Install Cloudflared service.
  * @param token Tunnel service token.
+ * @platform macOS, linux
  */
 export function install(token?: string): void {
-    if (process.platform !== "darwin") {
+    if (!["darwin", "linux"].includes(process.platform)) {
         throw new Error(`Not Implemented on platform ${process.platform}`);
     }
 
@@ -71,9 +91,10 @@ export function install(token?: string): void {
 
 /**
  * Uninstall Cloudflared service.
+ * @platform macOS, linux
  */
 export function uninstall(): void {
-    if (process.platform !== "darwin") {
+    if (!["darwin", "linux"].includes(process.platform)) {
         throw new Error(`Not Implemented on platform ${process.platform}`);
     }
 
@@ -83,45 +104,76 @@ export function uninstall(): void {
 
     spawnSync(bin, ["service", "uninstall"]);
 
-    fs.rmSync(MACOS_SERVICE_PATH.OUT);
-    fs.rmSync(MACOS_SERVICE_PATH.ERR);
+    if (process.platform === "darwin") {
+        fs.rmSync(MACOS_SERVICE_PATH.OUT);
+        fs.rmSync(MACOS_SERVICE_PATH.ERR);
+    } else if (process.platform === "linux" && !is_systemd()) {
+        fs.rmSync(LINUX_SERVICE_PATH.SERVICE_OUT);
+        fs.rmSync(LINUX_SERVICE_PATH.SERVICE_ERR);
+    }
 }
 
 /**
  * Get stdout log of cloudflared service. (Usually empty)
  * @returns stdout log of cloudflared service.
+ * @platform macOS, linux (sysv)
  */
 export function log(): string {
-    if (process.platform !== "darwin") {
-        throw new Error(`Not Implemented on platform ${process.platform}`);
-    }
-
     if (!exists()) {
         throw new NotInstalledError();
     }
 
-    return fs.readFileSync(MACOS_SERVICE_PATH.OUT, "utf8");
+    if (process.platform === "darwin") {
+        return fs.readFileSync(MACOS_SERVICE_PATH.OUT, "utf8");
+    }
+
+    if (process.platform === "linux" && !is_systemd()) {
+        return fs.readFileSync(LINUX_SERVICE_PATH.SERVICE_OUT, "utf8");
+    }
+
+    throw new Error(`Not Implemented on platform ${process.platform}`);
 }
 
 /**
  * Get stderr log of cloudflared service. (cloudflared print all things here)
  * @returns stderr log of cloudflared service.
+ * @platform macOS, linux (sysv)
  */
 export function err(): string {
-    if (process.platform !== "darwin") {
-        throw new Error(`Not Implemented on platform ${process.platform}`);
-    }
-
     if (!exists()) {
         throw new NotInstalledError();
     }
 
-    return fs.readFileSync(MACOS_SERVICE_PATH.ERR, "utf8");
+    if (process.platform === "darwin") {
+        return fs.readFileSync(MACOS_SERVICE_PATH.ERR, "utf8");
+    }
+
+    if (process.platform === "linux" && !is_systemd()) {
+        return fs.readFileSync(LINUX_SERVICE_PATH.SERVICE_ERR, "utf8");
+    }
+
+    throw new Error(`Not Implemented on platform ${process.platform}`);
+}
+
+/**
+ * Get cloudflared service journal from journalctl.
+ * @param n The number of entries to return.
+ * @returns cloudflared service journal.
+ * @platform linux (systemd)
+ */
+export function journal(n = 300): string {
+    if (process.platform === "linux" && is_systemd()) {
+        const args = ["-u", service_name, "-o", "cat", "-n", n.toString()];
+        return spawnSync("journalctl", args).stdout.toString();
+    }
+
+    throw new Error(`Not Implemented on platform ${process.platform}`);
 }
 
 /**
  * Get informations of current running cloudflared service.
  * @returns informations of current running cloudflared service.
+ * @platform macOS, linux
  */
 export function current(): {
     /** Tunnel ID */
@@ -134,11 +186,11 @@ export function current(): {
     metrics: string;
     /** Tunnel Configuration */
     config: {
-        ingress: { service: string; hostname?: string }[];
+        ingress?: { service: string; hostname?: string }[];
         [key: string]: unknown;
     };
 } {
-    if (process.platform !== "darwin") {
+    if (!["darwin", "linux"].includes(process.platform)) {
         throw new Error(`Not Implemented on platform ${process.platform}`);
     }
 
@@ -146,49 +198,60 @@ export function current(): {
         throw new NotInstalledError();
     }
 
-    const error = err();
+    const log = is_systemd() ? journal() : err();
 
     const regex = {
-        tunnelID: /tunnelID=([0-9a-z-]+)/g,
-        connectorID: /Connector ID: ([0-9a-z-]+)/g,
-        connections:
-            /Connection ([a-z0-9-]+) registered connIndex=(\d) ip=([0-9.]+) location=([A-Z]+)/g,
-        metrics: /metrics server on ([0-9.:]+\/metrics)/g,
-        config: /config="(.+[^\\])"/g,
+        tunnelID: /tunnelID=([0-9a-z-]+)/,
+        connectorID: /Connector ID: ([0-9a-z-]+)/,
+        connect: /Connection ([a-z0-9-]+) registered connIndex=(\d) ip=([0-9.]+) location=([A-Z]+)/,
+        disconnect: /Unregistered tunnel connection connIndex=(\d)/,
+        metrics: /metrics server on ([0-9.:]+\/metrics)/,
+        config: /config="(.+[^\\])"/,
     };
 
-    const match = {
-        tunnelID: regex.tunnelID.exec(error),
-        connectorID: regex.connectorID.exec(error),
-        connections: error.matchAll(regex.connections),
-        metrics: regex.metrics.exec(error),
-        config: regex.config.exec(error),
-    };
+    let tunnelID = "";
+    let connectorID = "";
+    const connections: Connection[] = [];
+    let metrics = "";
+    let config: {
+        ingress?: { service: string; hostname?: string }[];
+        [key: string]: unknown;
+    } = {};
 
-    const config = (() => {
+    for (const line of log.split("\n")) {
         try {
-            return JSON.parse(match.config?.[1].replace(/\\/g, "") ?? "{}");
-        } catch (e) {
-            return {};
+            if (line.match(regex.tunnelID)) {
+                tunnelID = line.match(regex.tunnelID)?.[1] ?? "";
+            } else if (line.match(regex.connectorID)) {
+                connectorID = line.match(regex.connectorID)?.[1] ?? "";
+            } else if (line.match(regex.connect)) {
+                const [, id, idx, ip, location] = line.match(regex.connect) ?? [];
+                if (id && idx && ip && location) {
+                    connections[parseInt(idx)] = { id, ip, location };
+                }
+            } else if (line.match(regex.disconnect)) {
+                const [, idx] = line.match(regex.disconnect) ?? [];
+                if (parseInt(idx) in connections) {
+                    connections[parseInt(idx)] = { id: "", ip: "", location: "" };
+                }
+            } else if (line.match(regex.metrics)) {
+                metrics = line.match(regex.metrics)?.[1] ?? "";
+            } else if (line.match(regex.config)) {
+                config = JSON.parse(line.match(regex.config)?.[1].replace(/\\/g, "") ?? "{}");
+            }
+        } catch (err) {
+            if (process.env.VERBOSE) {
+                console.error("log parsing failed", err);
+            }
         }
-    })();
+    }
 
-    return {
-        tunnelID: match.tunnelID?.[1] ?? "",
-        connectorID: match.connectorID?.[1] ?? "",
-        connections:
-            [...match.connections].map(([, id, , ip, location]) => ({
-                id,
-                ip,
-                location,
-            })) ?? [],
-        metrics: match.metrics?.[1] ?? "",
-        config,
-    };
+    return { tunnelID, connectorID, connections, metrics, config };
 }
 
 /**
  * Clean up service log files.
+ * @platform macOS
  */
 export function clean(): void {
     if (process.platform !== "darwin") {
@@ -206,13 +269,24 @@ export function clean(): void {
 /**
  * Check if cloudflared service is installed.
  * @returns true if service is installed, false otherwise.
+ * @platform macOS, linux
  */
 export function exists(): boolean {
-    return is_root()
-        ? fs.existsSync(MACOS_SERVICE_PATH.PLIST)
-        : fs.existsSync(MACOS_SERVICE_PATH.PLIST);
+    if (process.platform === "darwin") {
+        return fs.existsSync(MACOS_SERVICE_PATH.PLIST);
+    } else if (process.platform === "linux") {
+        return is_systemd()
+            ? fs.existsSync(LINUX_SERVICE_PATH.SYSTEMD)
+            : fs.existsSync(LINUX_SERVICE_PATH.SERVICE);
+    }
+
+    throw new Error(`Not Implemented on platform ${process.platform}`);
 }
 
 function is_root(): boolean {
     return process.getuid?.() === 0;
+}
+
+function is_systemd(): boolean {
+    return process.platform === "linux" && fs.existsSync("/run/systemd/system");
 }
