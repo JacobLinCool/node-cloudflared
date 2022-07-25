@@ -156,3 +156,7 @@ Service is running.
   - http_status:404 -> undefined
 metrics server: 127.0.0.1:49177/metrics
 ```
+
+NOTICE: On linux, service can only be installed and uninstalled by root.
+
+Run service test on linux: `sudo -E env "PATH=$PATH" pnpm test`
