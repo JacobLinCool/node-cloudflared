@@ -41,10 +41,10 @@ describe("service", () => {
         it("should work", async () => {
             expect(service.exists()).toBe(false);
             service.install(TOKEN);
-            expect(service.exists()).toBe(true);
 
             await new Promise((r) => setTimeout(r, 15_000));
 
+            expect(service.exists()).toBe(true);
             const current = service.current();
             expect(current.tunnelID.length).toBeGreaterThan(0);
             expect(current.connectorID.length).toBeGreaterThan(0);
