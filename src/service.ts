@@ -30,7 +30,7 @@ export const MACOS_SERVICE_PATH = {
     ERR: is_root()
         ? `/Library/Logs/${identifier}.err.log`
         : `${os.homedir()}/Library/Logs/${identifier}.err.log`,
-};
+} as const;
 
 /**
  * Path of service related files.
@@ -41,7 +41,7 @@ export const LINUX_SERVICE_PATH = {
     SERVICE: "/etc/init.d/cloudflared",
     SERVICE_OUT: "/var/log/cloudflared.log",
     SERVICE_ERR: "/var/log/cloudflared.err",
-};
+} as const;
 
 /**
  * Cloudflared Service API.
