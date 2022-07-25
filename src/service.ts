@@ -86,7 +86,11 @@ export function install(token?: string): void {
         args.push(token);
     }
 
-    spawnSync(bin, args);
+    const result = spawnSync(bin, args);
+
+    if (result.status !== 0) {
+        throw new Error(`service install failed: ${result.stderr.toString()}`);
+    }
 }
 
 /**
@@ -102,7 +106,11 @@ export function uninstall(): void {
         throw new NotInstalledError();
     }
 
-    spawnSync(bin, ["service", "uninstall"]);
+    const result = spawnSync(bin, ["service", "uninstall"]);
+
+    if (result.status !== 0) {
+        throw new Error(`service uninstall failed: ${result.stderr.toString()}`);
+    }
 
     if (process.platform === "darwin") {
         fs.rmSync(MACOS_SERVICE_PATH.OUT);
