@@ -3,10 +3,16 @@
     "version": "0.2.1",
     "description": "Cloudflared in Node.",
     "type": "module",
-    "module": "lib/lib.js",
-    "main": "lib/lib.cjs",
-    "bin": "lib/index.js",
-    "types": "lib/lib.d.ts",
+    "exports": {
+        ".": {
+            "types": "./lib/lib.d.ts",
+            "import": "./lib/lib.js",
+            "require": "./lib/lib.cjs"
+        }
+    },
+    "main": "./lib/lib.js",
+    "types": "./lib/lib.d.ts",
+    "bin": "./lib/index.js",
     "scripts": {
         "test": "jest --coverage",
         "dev": "tsup --watch",
