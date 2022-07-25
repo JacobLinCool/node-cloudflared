@@ -90,6 +90,8 @@ Then, it just passes down the command to <code>cloudflared</code>.</p>
 </code></pre>
 <pre><code class="language-sh"><span class="hl-0">❯ node examples/service.js</span><br/><span class="hl-0">Cloudflared Service Example.</span><br/><span class="hl-0">Service is running.</span><br/><span class="hl-0">  - http://localhost:12345 -&gt; sub.example.com</span><br/><span class="hl-0">  - http_status:404 -&gt; undefined</span><br/><span class="hl-0">metrics server: 127.0.0.1:49177/metrics</span>
 </code></pre>
+<p>NOTICE: On linux, service can only be installed and uninstalled by root.</p>
+<p>Run service test on linux: <code>sudo -E env &quot;PATH=$PATH&quot; pnpm test</code></p>
 </div></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
