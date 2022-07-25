@@ -22,6 +22,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         env:
             VERBOSE: 1
+            TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
 
         steps:
             - name: Checkout Repository
