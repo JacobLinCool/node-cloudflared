@@ -31,7 +31,11 @@ describe("tunnel", () => {
 
 describe("service", () => {
     const TOKEN = process.env.TUNNEL_TOKEN;
-    if (TOKEN && ["darwin", "linux"].includes(process.platform)) {
+    if (
+        TOKEN &&
+        ["darwin", "linux"].includes(process.platform) &&
+        !(process.platform === "linux" && process.getuid?.() !== 0)
+    ) {
         beforeAll(() => {
             if (service.exists()) {
                 service.uninstall();
