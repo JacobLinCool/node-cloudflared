@@ -38,7 +38,7 @@ jobs:
             - name: Publish
               run: |
                   pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
-                  pnpm publish --verbose
+                  pnpm publish --verbose --no-git-checks
 
     release-note:
         name: Release Note (${{ github.ref }})
