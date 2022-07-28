@@ -3,79 +3,89 @@ import path from "node:path";
 import https from "node:https";
 import { execSync } from "node:child_process";
 
+const RELEASE_BASE = "https://github.com/cloudflare/cloudflared/releases/";
+
 const LINUX_URL: Partial<Record<typeof process.arch, string>> = {
-    arm64: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64",
-    arm: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm",
-    x64: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64",
-    ia32: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-386",
+    arm64: "cloudflared-linux-arm64",
+    arm: "cloudflared-linux-arm",
+    x64: "cloudflared-linux-amd64",
+    ia32: "cloudflared-linux-386",
 };
 
 const MACOS_URL: Partial<Record<typeof process.arch, string>> = {
-    arm64: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-darwin-amd64.tgz",
-    x64: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-darwin-amd64.tgz",
+    arm64: "cloudflared-darwin-amd64.tgz",
+    x64: "cloudflared-darwin-amd64.tgz",
 };
 
 const WINDOWS_URL: Partial<Record<typeof process.arch, string>> = {
-    x64: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe",
-    ia32: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-386.exe",
+    x64: "cloudflared-windows-amd64.exe",
+    ia32: "cloudflared-windows-386.exe",
 };
+
+function resolve_base(version: string): string {
+    if (version === "latest") {
+        return `${RELEASE_BASE}latest/download/`;
+    }
+    return `${RELEASE_BASE}download/${version}/`;
+}
 
 /**
  * Install cloudflared to the given path.
  * @param to The path to the binary to install.
+ * @param version The version of cloudflared to install.
  * @returns The path to the binary that was installed.
  */
-export async function install(to: string): Promise<string> {
+export async function install(to: string, version = "latest"): Promise<string> {
     if (process.platform === "linux") {
-        return install_linux(to);
+        return install_linux(to, version);
     } else if (process.platform === "darwin") {
-        return install_macos(to);
+        return install_macos(to, version);
     } else if (process.platform === "win32") {
-        return install_windows(to);
+        return install_windows(to, version);
     } else {
         console.error("Unsupported platform: " + process.platform);
         process.exit(1);
     }
 }
 
-export async function install_linux(to: string): Promise<string> {
-    const url = LINUX_URL[process.arch];
+export async function install_linux(to: string, version = "latest"): Promise<string> {
+    const file = LINUX_URL[process.arch];
 
-    if (url === undefined) {
+    if (file === undefined) {
         console.error("Unsupported architecture: " + process.arch);
         process.exit(1);
     }
 
-    await download(url, to);
+    await download(resolve_base(version) + file, to);
     await new Promise((r) => setTimeout(r, 100));
     fs.chmodSync(to, "755");
     return to;
 }
 
-export async function install_macos(to: string): Promise<string> {
-    const url = MACOS_URL[process.arch];
+export async function install_macos(to: string, version = "latest"): Promise<string> {
+    const file = MACOS_URL[process.arch];
 
-    if (url === undefined) {
+    if (file === undefined) {
         console.error("Unsupported architecture: " + process.arch);
         process.exit(1);
     }
 
-    await download(url, `${to}.tgz`);
+    await download(resolve_base(version) + file, `${to}.tgz`);
     process.env.VERBOSE && console.log(`Extracting to ${to}`);
     execSync(`tar -xzf ${path.basename(`${to}.tgz`)}`, { cwd: path.dirname(to) });
     fs.unlinkSync(`${to}.tgz`);
     fs.renameSync(`${path.dirname(to)}/cloudflared`, to);
     return to;
 }
-export async function install_windows(to: string): Promise<string> {
-    const url = WINDOWS_URL[process.arch];
+export async function install_windows(to: string, version = "latest"): Promise<string> {
+    const file = WINDOWS_URL[process.arch];
 
-    if (url === undefined) {
+    if (file === undefined) {
         console.error("Unsupported architecture: " + process.arch);
         process.exit(1);
     }
 
-    await download(url, to);
+    await download(resolve_base(version) + file, to);
     return to;
 }
 
