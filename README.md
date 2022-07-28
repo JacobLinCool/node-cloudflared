@@ -38,9 +38,21 @@ Or just try:
 cloudflared --help
 ```
 
-### Extra Things
+### Extra: `bin` subcommand
 
-There is an extra command: `cloudflared remove-bin`, which will remove the `cloudflared` binary that is installed by this package.
+There is an extra subcommand: `cloudflared bin`. You can use it to manage the cloudflared binary version.
+
+```sh
+❯ cloudflared bin --help
+cloudflared bin                    : Prints the path to the binary
+cloudflared bin remove             : Removes the binary
+cloudflared bin install [version]  : Installs the binary
+cloudflared bin help               : Prints this help message
+Examples:
+cloudflared bin install            : Installs the latest version of cloudflared
+cloudflared bin install 2022.7.1   : Installs cloudflared 2022.7.1
+You can find releases at https://github.com/cloudflare/cloudflared/releases
+```
 
 ## Library Usage
 
