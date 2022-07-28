@@ -35,9 +35,10 @@ jobs:
             - name: Build & Test
               run: pnpm build && pnpm test
 
-            - uses: JS-DevTools/npm-publish@v1
-              with:
-                  token: ${{ secrets.NPM_TOKEN }}
+            - name: Publish
+              run: |
+                  pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+                  pnpm publish --verbose
 
     release-note:
         name: Release Note (${{ github.ref }})
