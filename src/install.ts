@@ -57,7 +57,6 @@ export async function install_linux(to: string, version = "latest"): Promise<str
     }
 
     await download(resolve_base(version) + file, to);
-    await new Promise((r) => setTimeout(r, 100));
     fs.chmodSync(to, "755");
     return to;
 }
@@ -105,9 +104,9 @@ function download(url: string, to: string, redirect = 0): Promise<string> {
         const file = fs.createWriteStream(to);
         const request = https.get(url, (res) => {
             if (res.statusCode === 302 && res.headers.location !== undefined) {
+                const redirection = res.headers.location;
                 done = false;
-                file.close();
-                resolve(download(res.headers.location, to, redirect + 1));
+                file.close(() => resolve(download(redirection, to, redirect + 1)));
                 return;
             }
             res.pipe(file);
@@ -115,7 +114,7 @@ function download(url: string, to: string, redirect = 0): Promise<string> {
 
         file.on("finish", () => {
             if (done) {
-                resolve(to);
+                file.close(() => resolve(to));
             }
         });
 
