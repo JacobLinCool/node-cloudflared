@@ -12,7 +12,7 @@
     },
     "main": "./lib/lib.js",
     "types": "./lib/lib.d.ts",
-    "bin": "./lib/index.js",
+    "bin": "./lib/cloudflared.js",
     "scripts": {
         "test": "jest --coverage",
         "dev": "tsup --watch",

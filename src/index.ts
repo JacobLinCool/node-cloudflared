@@ -2,9 +2,7 @@ import fs from "node:fs";
 import { spawn } from "node:child_process";
 import { bin, install } from "./lib.js";
 
-main();
-
-async function main() {
+export async function main(): Promise<void> {
     const args = process.argv.slice(2);
 
     if (args[0] === "bin") {
