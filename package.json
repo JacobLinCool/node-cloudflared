@@ -1,15 +1,7 @@
 {
     "name": "cloudflared",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "description": "Cloudflared in Node.",
-    "type": "module",
-    "exports": {
-        ".": {
-            "types": "./lib/lib.d.ts",
-            "import": "./lib/lib.js",
-            "require": "./lib/lib.cjs"
-        }
-    },
     "main": "./lib/lib.js",
     "types": "./lib/lib.d.ts",
     "bin": "./lib/cloudflared.js",
@@ -20,7 +12,7 @@
         "docs": "typedoc ./src/lib.ts",
         "format": "prettier --write '**/*.{js,ts,jsx,tsx,json,yml,yaml,md,html}' --ignore-path .gitignore",
         "lint": "eslint .",
-        "postinstall": "node scripts/postinstall.js && node lib/index.js -v"
+        "postinstall": "node scripts/postinstall.mjs && node lib/cloudflared.js -v"
     },
     "keywords": [
         "cloudflared",
