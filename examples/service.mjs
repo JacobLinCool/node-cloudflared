@@ -1,4 +1,4 @@
-const { service } = require("cloudflared");
+import { service } from "cloudflared";
 
 console.log("Cloudflared Service Example.");
 main();

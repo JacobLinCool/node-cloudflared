@@ -1,4 +1,4 @@
-const { tunnel } = require("cloudflared");
+import { tunnel } from "cloudflared";
 
 console.log("Cloudflared Tunnel Example.");
 main();
