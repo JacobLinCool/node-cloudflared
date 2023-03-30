@@ -211,7 +211,7 @@ export function current(): {
     const regex = {
         tunnelID: /tunnelID=([0-9a-z-]+)/,
         connectorID: /Connector ID: ([0-9a-z-]+)/,
-        connect: /Connection ([a-z0-9-]+) registered connIndex=(\d) ip=([0-9.]+) location=([A-Z]+)/,
+        connect: /Connection ([a-z0-9-]+) (?:.*?)connIndex=(\d) ip=([0-9.]+) location=([A-Z]+)/,
         disconnect: /Unregistered tunnel connection connIndex=(\d)/,
         metrics: /metrics server on ([0-9.:]+\/metrics)/,
         config: /config="(.+[^\\])"/,
