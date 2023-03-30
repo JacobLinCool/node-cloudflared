@@ -27,6 +27,9 @@ export function tunnel(options: Record<string, string | number | null> = {}): {
             args.push(`${key}`);
         }
     }
+    if (args.length === 1) {
+        args.push("--url", "localhost:8080");
+    }
 
     const child = spawn(bin, args, { stdio: ["ignore", "pipe", "pipe"] });
 
