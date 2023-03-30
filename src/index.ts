@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import https from "node:https";
 import { spawn } from "node:child_process";
 import { bin, install } from "./lib.js";
 
@@ -25,10 +26,39 @@ export async function main(): Promise<void> {
             }
             return;
         }
+        if (args[1] === "list") {
+            https.get(
+                {
+                    hostname: "api.github.com",
+                    path: "/repos/cloudflare/cloudflared/releases",
+                    headers: {
+                        "user-agent": "node-cloudflared",
+                    },
+                },
+                (res) => {
+                    let data = "";
+                    res.on("data", (chunk) => {
+                        data += chunk;
+                    });
+                    res.on("end", () => {
+                        const releases = JSON.parse(data);
+                        for (const release of releases) {
+                            console.log(
+                                `${release.tag_name.padEnd(10)} (${release.published_at}) [${
+                                    release.html_url
+                                }]`,
+                            );
+                        }
+                    });
+                },
+            );
+            return;
+        }
         if (args[1] === "help" || args[1] === "--help" || args[1] === "-h") {
             console.log(`cloudflared bin                    : Prints the path to the binary`);
             console.log(`cloudflared bin remove             : Removes the binary`);
             console.log(`cloudflared bin install [version]  : Installs the binary`);
+            console.log(`cloudflared bin list               : Lists 30 latest releases`);
             console.log(`cloudflared bin help               : Prints this help message`);
             console.log(`Examples:`);
             console.log(

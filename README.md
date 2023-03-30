@@ -47,6 +47,7 @@ There is an extra subcommand: `cloudflared bin`. You can use it to manage the cl
 cloudflared bin                    : Prints the path to the binary
 cloudflared bin remove             : Removes the binary
 cloudflared bin install [version]  : Installs the binary
+cloudflared bin list               : Lists 30 latest releases
 cloudflared bin help               : Prints this help message
 Examples:
 cloudflared bin install            : Installs the latest version of cloudflared
