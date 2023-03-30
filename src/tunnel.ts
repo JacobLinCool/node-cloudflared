@@ -44,7 +44,7 @@ export function tunnel(options: Record<string, string | number | null> = {}): {
     const url = new Promise<string>((...pair) => ([url_resolver, url_rejector] = pair));
 
     const connection_regex =
-        /Connection ([a-z0-9-]+) registered connIndex=(\d) ip=([0-9.]+) location=([A-Z]+)/;
+        /Connection ([a-z0-9-]+) (?:.*?)connIndex=(\d) ip=([0-9.]+) location=([A-Z]+)/;
     const connection_resolvers: ((value: Connection | PromiseLike<Connection>) => void)[] = [];
     const connection_rejectors: ((reason: unknown) => void)[] = [];
     const connections: Promise<Connection>[] = [];
