@@ -14,11 +14,7 @@
 <a href="#cloudflared" id="cloudflared" style="color: inherit; text-decoration: none;">
   <h1>cloudflared</h1>
 </a>
-<p>Cloudflared in Node.</p>
-<ul>
-<li>Easily install <code>cloudflared</code> on macOS, Linux, and Windows.</li>
-<li>Typed API for creating tunnel.</li>
-</ul>
+<p>A Node.js package that allows you to easily create HTTPS tunnels using Cloudflare&#39;s <code>cloudflared</code> command-line tool. It provides a typed API for creating tunnels and managing the <code>cloudflared</code> binary installation.</p>
 <blockquote>
 <p>This tool will automatically install the <a href="https://github.com/cloudflare/cloudflared/releases/latest">latest version of <code>cloudflared</code></a> at the first time.
 Then, it just passes down the command to <code>cloudflared</code>.</p>
@@ -27,6 +23,7 @@ Then, it just passes down the command to <code>cloudflared</code>.</p>
 <a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
   <h2>Installation</h2>
 </a>
+<p>You can install this package using your favorite package manager:</p>
 
 <a href="#pnpm" id="pnpm" style="color: inherit; text-decoration: none;">
   <h3>PNPM</h3>
@@ -46,28 +43,23 @@ Then, it just passes down the command to <code>cloudflared</code>.</p>
 <pre><code class="language-sh"><span class="hl-0">yarn global add cloudflared</span>
 </code></pre>
 
-<a href="#usage" id="usage" style="color: inherit; text-decoration: none;">
-  <h2>Usage</h2>
+<a href="#cli-usage" id="cli-usage" style="color: inherit; text-decoration: none;">
+  <h2>CLI Usage</h2>
 </a>
-<p>You can find the usage of <code>cloudflared</code> here: <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-useful-commands/">https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-useful-commands/</a></p>
-<p>Or just try:</p>
-<pre><code class="language-sh"><span class="hl-0">cloudflared --help</span>
-</code></pre>
-
-<a href="#extra-bin-subcommand" id="extra-bin-subcommand" style="color: inherit; text-decoration: none;">
-  <h3>Extra: <code>bin</code> subcommand</h3>
-</a>
-<p>There is an extra subcommand: <code>cloudflared bin</code>. You can use it to manage the cloudflared binary version.</p>
+<p>You can use the <code>cloudflared</code> command-line tool to create HTTPS tunnels. You can find the usage of <code>cloudflared</code> <a href="https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-useful-commands/">here</a>.</p>
+<p>In addition to the standard <code>cloudflared</code> commands, this package also provides an extra subcommand: <code>cloudflared bin</code>. You can use it to manage the <code>cloudflared</code> binary version.</p>
 <pre><code class="language-sh"><span class="hl-0">❯ cloudflared bin --help</span><br/><span class="hl-0">cloudflared bin                    </span><span class="hl-1">:</span><span class="hl-0"> Prints the path to the binary</span><br/><span class="hl-0">cloudflared bin remove             </span><span class="hl-1">:</span><span class="hl-0"> Removes the binary</span><br/><span class="hl-0">cloudflared bin install [version]  </span><span class="hl-1">:</span><span class="hl-0"> Installs the binary</span><br/><span class="hl-0">cloudflared bin list               </span><span class="hl-1">:</span><span class="hl-0"> Lists 30 latest releases</span><br/><span class="hl-0">cloudflared bin </span><span class="hl-1">help</span><span class="hl-0">               </span><span class="hl-1">:</span><span class="hl-0"> Prints this </span><span class="hl-1">help</span><span class="hl-0"> message</span><br/><span class="hl-0">Examples:</span><br/><span class="hl-0">cloudflared bin install            </span><span class="hl-1">:</span><span class="hl-0"> Installs the latest version of cloudflared</span><br/><span class="hl-0">cloudflared bin install 2022.7.1   </span><span class="hl-1">:</span><span class="hl-0"> Installs cloudflared 2022.7.1</span><br/><span class="hl-0">You can find releases at https://github.com/cloudflare/cloudflared/releases</span>
 </code></pre>
 
 <a href="#library-usage" id="library-usage" style="color: inherit; text-decoration: none;">
   <h2>Library Usage</h2>
 </a>
+<p>You can also use it as a library in your TypeScript / JavaScript projects.</p>
 
 <a href="#binary-path-amp-install" id="binary-path-amp-install" style="color: inherit; text-decoration: none;">
   <h3>Binary Path &amp; Install</h3>
 </a>
+<p>You can get the path of the <code>cloudflared</code> binary and install it using the <code>bin</code> and <code>install</code> functions, respectively.</p>
 <pre><code class="language-js"><span class="hl-2">import</span><span class="hl-0"> { </span><span class="hl-3">bin</span><span class="hl-0">, </span><span class="hl-3">install</span><span class="hl-0"> } </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-4">&quot;cloudflared&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> </span><span class="hl-3">fs</span><span class="hl-0"> </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-4">&quot;node:fs&quot;</span><span class="hl-0">;</span><br/><span class="hl-2">import</span><span class="hl-0"> { </span><span class="hl-3">spawn</span><span class="hl-0"> } </span><span class="hl-2">from</span><span class="hl-0"> </span><span class="hl-4">&quot;node:child_process&quot;</span><span class="hl-0">;</span><br/><br/><span class="hl-2">if</span><span class="hl-0"> (!</span><span class="hl-3">fs</span><span class="hl-0">.</span><span class="hl-1">existsSync</span><span class="hl-0">(</span><span class="hl-3">bin</span><span class="hl-0">)) {</span><br/><span class="hl-0">    </span><span class="hl-5">// install cloudflared binary</span><br/><span class="hl-0">    </span><span class="hl-2">await</span><span class="hl-0"> </span><span class="hl-1">install</span><span class="hl-0">(</span><span class="hl-3">bin</span><span class="hl-0">);</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-5">// run cloudflared</span><br/><span class="hl-1">spawn</span><span class="hl-0">(</span><span class="hl-3">bin</span><span class="hl-0">, [</span><span class="hl-4">&quot;--version&quot;</span><span class="hl-0">], { </span><span class="hl-3">stdio:</span><span class="hl-0"> </span><span class="hl-4">&quot;inherit&quot;</span><span class="hl-0"> });</span>
 </code></pre>
 <ul>
