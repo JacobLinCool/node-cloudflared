@@ -1,14 +1,13 @@
 # cloudflared
 
-Cloudflared in Node.
-
-- Easily install `cloudflared` on macOS, Linux, and Windows.
-- Typed API for creating tunnel.
+A Node.js package that allows you to easily create HTTPS tunnels using Cloudflare's `cloudflared` command-line tool. It provides a typed API for creating tunnels and managing the `cloudflared` binary installation.
 
 > This tool will automatically install the [latest version of `cloudflared`](https://github.com/cloudflare/cloudflared/releases/latest) at the first time.
 > Then, it just passes down the command to `cloudflared`.
 
 ## Installation
+
+You can install this package using your favorite package manager:
 
 ### PNPM
 
@@ -28,19 +27,11 @@ npm i -g cloudflared
 yarn global add cloudflared
 ```
 
-## Usage
+## CLI Usage
 
-You can find the usage of `cloudflared` here: <https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-useful-commands/>
+You can use the `cloudflared` command-line tool to create HTTPS tunnels. You can find the usage of `cloudflared` [here](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-useful-commands/).
 
-Or just try:
-
-```sh
-cloudflared --help
-```
-
-### Extra: `bin` subcommand
-
-There is an extra subcommand: `cloudflared bin`. You can use it to manage the cloudflared binary version.
+In addition to the standard `cloudflared` commands, this package also provides an extra subcommand: `cloudflared bin`. You can use it to manage the `cloudflared` binary version.
 
 ```sh
 ❯ cloudflared bin --help
@@ -57,7 +48,11 @@ You can find releases at https://github.com/cloudflare/cloudflared/releases
 
 ## Library Usage
 
+You can also use it as a library in your TypeScript / JavaScript projects.
+
 ### Binary Path & Install
+
+You can get the path of the `cloudflared` binary and install it using the `bin` and `install` functions, respectively.
 
 ```js
 import { bin, install } from "cloudflared";
