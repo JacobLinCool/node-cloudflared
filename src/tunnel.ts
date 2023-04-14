@@ -48,7 +48,7 @@ export function tunnel(options: Record<string, string | number | null> = {}): {
     const connection_resolvers: ((value: Connection | PromiseLike<Connection>) => void)[] = [];
     const connection_rejectors: ((reason: unknown) => void)[] = [];
     const connections: Promise<Connection>[] = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 1; i++) {
         connections.push(
             new Promise<Connection>(
                 (...pair) => ([connection_resolvers[i], connection_rejectors[i]] = pair),
