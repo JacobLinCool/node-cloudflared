@@ -22,8 +22,7 @@ describe("tunnel", () => {
     it("should create a tunnel", async () => {
         const { url, connections, child, stop } = tunnel();
         expect(await url).toMatch(/https?:\/\/[^\s]+/);
-        const conns = await Promise.all(connections);
-        expect(conns.length).toBe(4);
+        await connections[0]; // quick tunnel only has one connection
         expect(child).toBeInstanceOf(ChildProcess);
         stop();
     });
