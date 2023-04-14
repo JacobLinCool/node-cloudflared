@@ -1,6 +1,6 @@
 {
     "name": "cloudflared",
-    "version": "0.3.4",
+    "version": "0.3.5",
     "description": "Cloudflared in Node.",
     "main": "./lib/lib.js",
     "types": "./lib/lib.d.ts",
