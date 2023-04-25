@@ -43,8 +43,10 @@ export function tunnel(options: Record<string, string | number | null> = {}): {
     let url_rejector: (reason: unknown) => void = () => undefined;
     const url = new Promise<string>((...pair) => ([url_resolver, url_rejector] = pair));
 
-    const connection_regex =
-        /Connection ([a-z0-9-]+) (?:.*?)connIndex=(\d) ip=([0-9.]+) location=([A-Z]+)/;
+    const conn_regex = /connection[= ]([a-z0-9-]+)/i;
+    const ip_regex = /ip=([0-9.]+)/;
+    const location_regex = /location=([A-Z]+)/;
+    const index_regex = /connIndex=(\d)/;
     const connection_resolvers: ((value: Connection | PromiseLike<Connection>) => void)[] = [];
     const connection_rejectors: ((reason: unknown) => void)[] = [];
     const connections: Promise<Connection>[] = [];
@@ -62,10 +64,16 @@ export function tunnel(options: Record<string, string | number | null> = {}): {
         const url_match = str.match(url_regex);
         url_match && url_resolver(url_match[1]);
 
-        const connection_match = str.match(connection_regex);
-        if (connection_match) {
-            const [, id, idx, ip, location] = connection_match;
-            connection_resolvers[+idx]({ id, ip, location });
+        const conn_match = str.match(conn_regex);
+        const ip_match = str.match(ip_regex);
+        const location_match = str.match(location_regex);
+        const index_match = str.match(index_regex);
+        if (conn_match && ip_match && location_match && index_match) {
+            const [, id] = conn_match;
+            const [, ip] = ip_match;
+            const [, location] = location_match;
+            const [, idx] = index_match;
+            connection_resolvers[+idx]?.({ id, ip, location });
         }
     };
     child.stdout.on("data", parser).on("error", url_rejector);
