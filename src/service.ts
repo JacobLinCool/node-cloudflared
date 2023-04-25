@@ -3,6 +3,17 @@ import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import { bin } from "./constants.js";
 import { Connection } from "./types.js";
+import {
+    config_regex,
+    conn_regex,
+    connectorID_regex,
+    disconnect_regex,
+    index_regex,
+    ip_regex,
+    location_regex,
+    metrics_regex,
+    tunnelID_regex,
+} from "./regex.js";
 
 /**
  * Cloudflared launchd identifier.
@@ -208,15 +219,6 @@ export function current(): {
 
     const log = is_systemd() ? journal() : err();
 
-    const regex = {
-        tunnelID: /tunnelID=([0-9a-z-]+)/,
-        connectorID: /Connector ID: ([0-9a-z-]+)/,
-        connect: /Connection ([a-z0-9-]+) (?:.*?)connIndex=(\d) ip=([0-9.]+) location=([A-Z]+)/,
-        disconnect: /Unregistered tunnel connection connIndex=(\d)/,
-        metrics: /metrics server on ([0-9.:]+\/metrics)/,
-        config: /config="(.+[^\\])"/,
-    };
-
     let tunnelID = "";
     let connectorID = "";
     const connections: Connection[] = [];
@@ -228,24 +230,30 @@ export function current(): {
 
     for (const line of log.split("\n")) {
         try {
-            if (line.match(regex.tunnelID)) {
-                tunnelID = line.match(regex.tunnelID)?.[1] ?? "";
-            } else if (line.match(regex.connectorID)) {
-                connectorID = line.match(regex.connectorID)?.[1] ?? "";
-            } else if (line.match(regex.connect)) {
-                const [, id, idx, ip, location] = line.match(regex.connect) ?? [];
-                if (id && idx && ip && location) {
-                    connections[parseInt(idx)] = { id, ip, location };
-                }
-            } else if (line.match(regex.disconnect)) {
-                const [, idx] = line.match(regex.disconnect) ?? [];
+            if (line.match(tunnelID_regex)) {
+                tunnelID = line.match(tunnelID_regex)?.[1] ?? "";
+            } else if (line.match(connectorID_regex)) {
+                connectorID = line.match(connectorID_regex)?.[1] ?? "";
+            } else if (
+                line.match(conn_regex) &&
+                line.match(location_regex) &&
+                line.match(ip_regex) &&
+                line.match(index_regex)
+            ) {
+                const [, id] = line.match(conn_regex) ?? [];
+                const [, location] = line.match(location_regex) ?? [];
+                const [, ip] = line.match(ip_regex) ?? [];
+                const [, idx] = line.match(index_regex) ?? [];
+                connections[parseInt(idx)] = { id, ip, location };
+            } else if (line.match(disconnect_regex)) {
+                const [, idx] = line.match(disconnect_regex) ?? [];
                 if (parseInt(idx) in connections) {
                     connections[parseInt(idx)] = { id: "", ip: "", location: "" };
                 }
-            } else if (line.match(regex.metrics)) {
-                metrics = line.match(regex.metrics)?.[1] ?? "";
-            } else if (line.match(regex.config)) {
-                config = JSON.parse(line.match(regex.config)?.[1].replace(/\\/g, "") ?? "{}");
+            } else if (line.match(metrics_regex)) {
+                metrics = line.match(metrics_regex)?.[1] ?? "";
+            } else if (line.match(config_regex)) {
+                config = JSON.parse(line.match(config_regex)?.[1].replace(/\\/g, "") ?? "{}");
             }
         } catch (err) {
             if (process.env.VERBOSE) {

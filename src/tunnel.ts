@@ -1,6 +1,7 @@
 import { spawn, ChildProcess } from "node:child_process";
 import { bin } from "./constants.js";
 import { Connection } from "./types.js";
+import { conn_regex, ip_regex, location_regex, index_regex } from "./regex.js";
 
 /**
  *  Create a tunnel.
@@ -43,10 +44,6 @@ export function tunnel(options: Record<string, string | number | null> = {}): {
     let url_rejector: (reason: unknown) => void = () => undefined;
     const url = new Promise<string>((...pair) => ([url_resolver, url_rejector] = pair));
 
-    const conn_regex = /connection[= ]([a-z0-9-]+)/i;
-    const ip_regex = /ip=([0-9.]+)/;
-    const location_regex = /location=([A-Z]+)/;
-    const index_regex = /connIndex=(\d)/;
     const connection_resolvers: ((value: Connection | PromiseLike<Connection>) => void)[] = [];
     const connection_rejectors: ((reason: unknown) => void)[] = [];
     const connections: Promise<Connection>[] = [];
