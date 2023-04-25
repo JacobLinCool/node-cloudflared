@@ -2,7 +2,7 @@
 
 A Node.js package that allows you to easily create HTTPS tunnels using Cloudflare's `cloudflared` command-line tool. It provides a typed API for creating tunnels and managing the `cloudflared` binary installation.
 
-> This tool will automatically install the [latest version of `cloudflared`](https://github.com/cloudflare/cloudflared/releases/latest) at the first time.
+> This tool will automatically install the [latest version of `cloudflared`](https://github.com/cloudflare/cloudflared/releases/latest) (or `CLOUDFLARED_VERSION` env var if exists) at the first time.
 > Then, it just passes down the command to `cloudflared`.
 
 ## Installation
@@ -27,6 +27,8 @@ npm i -g cloudflared
 yarn global add cloudflared
 ```
 
+> If `CLOUDFLARED_VERSION` env var is set, it will install the specified version of `cloudflared`, otherwise it will install the latest version.
+
 ## CLI Usage
 
 You can use the `cloudflared` command-line tool to create HTTPS tunnels. You can find the usage of `cloudflared` [here](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-useful-commands/).
@@ -42,7 +44,7 @@ cloudflared bin list               : Lists 30 latest releases
 cloudflared bin help               : Prints this help message
 Examples:
 cloudflared bin install            : Installs the latest version of cloudflared
-cloudflared bin install 2022.7.1   : Installs cloudflared 2022.7.1
+cloudflared bin install 2023.4.1   : Installs cloudflared 2023.4.1
 You can find releases at https://github.com/cloudflare/cloudflared/releases
 ```
 
@@ -60,8 +62,8 @@ import fs from "node:fs";
 import { spawn } from "node:child_process";
 
 if (!fs.existsSync(bin)) {
-    // install cloudflared binary
-    await install(bin);
+  // install cloudflared binary
+  await install(bin);
 }
 
 // run cloudflared
@@ -82,24 +84,24 @@ console.log("Cloudflared Tunnel Example.");
 main();
 
 async function main() {
-    // run: cloudflared tunnel --hello-world
-    const { url, connections, child, stop } = tunnel({ "--hello-world": null });
+  // run: cloudflared tunnel --hello-world
+  const { url, connections, child, stop } = tunnel({ "--hello-world": null });
 
-    // show the url
-    console.log("LINK:", await url);
+  // show the url
+  console.log("LINK:", await url);
 
-    // wait for the all 4 connections to be established
-    const conns = await Promise.all(connections);
+  // wait for the all 4 connections to be established
+  const conns = await Promise.all(connections);
 
-    // show the connections
-    console.log("Connections Ready!", conns);
+  // show the connections
+  console.log("Connections Ready!", conns);
 
-    // stop the tunnel after 15 seconds
-    setTimeout(stop, 15_000);
+  // stop the tunnel after 15 seconds
+  setTimeout(stop, 15_000);
 
-    child.on("exit", (code) => {
-        console.log("tunnel process exited with code", code);
-    });
+  child.on("exit", (code) => {
+    console.log("tunnel process exited with code", code);
+  });
 }
 ```
 
@@ -143,16 +145,16 @@ console.log("Cloudflared Service Example.");
 main();
 
 async function main() {
-    if (service.exists()) {
-        console.log("Service is running.");
-        const current = service.current();
-        for (const { service, hostname } of current.config.ingress) {
-            console.log(`  - ${service} -> ${hostname}`);
-        }
-        console.log("metrics server:", current.metrics);
-    } else {
-        console.log("Service is not running.");
+  if (service.exists()) {
+    console.log("Service is running.");
+    const current = service.current();
+    for (const { service, hostname } of current.config.ingress) {
+      console.log(`  - ${service} -> ${hostname}`);
     }
+    console.log("metrics server:", current.metrics);
+  } else {
+    console.log("Service is not running.");
+  }
 }
 ```
 

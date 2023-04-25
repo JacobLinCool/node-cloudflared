@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import https from "node:https";
 import { execSync } from "node:child_process";
-
-const RELEASE_BASE = "https://github.com/cloudflare/cloudflared/releases/";
+import { CLOUDFLARED_VERSION, RELEASE_BASE } from "./constants";
+import { UnsupportedError } from "./error";
 
 const LINUX_URL: Partial<Record<typeof process.arch, string>> = {
     arm64: "cloudflared-linux-arm64",
@@ -35,7 +35,7 @@ function resolve_base(version: string): string {
  * @param version The version of cloudflared to install.
  * @returns The path to the binary that was installed.
  */
-export async function install(to: string, version = "latest"): Promise<string> {
+export async function install(to: string, version = CLOUDFLARED_VERSION): Promise<string> {
     if (process.platform === "linux") {
         return install_linux(to, version);
     } else if (process.platform === "darwin") {
@@ -43,17 +43,15 @@ export async function install(to: string, version = "latest"): Promise<string> {
     } else if (process.platform === "win32") {
         return install_windows(to, version);
     } else {
-        console.error("Unsupported platform: " + process.platform);
-        process.exit(1);
+        throw new UnsupportedError("Unsupported platform: " + process.platform);
     }
 }
 
-export async function install_linux(to: string, version = "latest"): Promise<string> {
+export async function install_linux(to: string, version = CLOUDFLARED_VERSION): Promise<string> {
     const file = LINUX_URL[process.arch];
 
     if (file === undefined) {
-        console.error("Unsupported architecture: " + process.arch);
-        process.exit(1);
+        throw new UnsupportedError("Unsupported architecture: " + process.arch);
     }
 
     await download(resolve_base(version) + file, to);
@@ -61,12 +59,11 @@ export async function install_linux(to: string, version = "latest"): Promise<str
     return to;
 }
 
-export async function install_macos(to: string, version = "latest"): Promise<string> {
+export async function install_macos(to: string, version = CLOUDFLARED_VERSION): Promise<string> {
     const file = MACOS_URL[process.arch];
 
     if (file === undefined) {
-        console.error("Unsupported architecture: " + process.arch);
-        process.exit(1);
+        throw new UnsupportedError("Unsupported architecture: " + process.arch);
     }
 
     await download(resolve_base(version) + file, `${to}.tgz`);
@@ -76,12 +73,11 @@ export async function install_macos(to: string, version = "latest"): Promise<str
     fs.renameSync(`${path.dirname(to)}/cloudflared`, to);
     return to;
 }
-export async function install_windows(to: string, version = "latest"): Promise<string> {
+export async function install_windows(to: string, version = CLOUDFLARED_VERSION): Promise<string> {
     const file = WINDOWS_URL[process.arch];
 
     if (file === undefined) {
-        console.error("Unsupported architecture: " + process.arch);
-        process.exit(1);
+        throw new UnsupportedError("Unsupported architecture: " + process.arch);
     }
 
     await download(resolve_base(version) + file, to);

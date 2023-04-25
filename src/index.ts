@@ -2,6 +2,7 @@ import fs from "node:fs";
 import https from "node:https";
 import { spawn } from "node:child_process";
 import { bin, install } from "./lib.js";
+import { CLOUDFLARED_VERSION } from "./constants.js";
 
 export async function main(): Promise<void> {
     const args = process.argv.slice(2);
@@ -17,12 +18,13 @@ export async function main(): Promise<void> {
             return;
         }
         if (args[1] === "install") {
-            if (args[2]) {
+            const version = args[2] || CLOUDFLARED_VERSION;
+            if (version !== "latest") {
                 console.log(`Installing cloudflared ${args[2]}`);
                 console.log(await install(bin, args[2]));
             } else {
                 console.log("Installing latest version of cloudflared");
-                await install(bin);
+                await install(bin, version);
             }
             return;
         }
@@ -64,7 +66,7 @@ export async function main(): Promise<void> {
             console.log(
                 `cloudflared bin install            : Installs the latest version of cloudflared`,
             );
-            console.log(`cloudflared bin install 2022.7.1   : Installs cloudflared 2022.7.1`);
+            console.log(`cloudflared bin install 2023.4.1   : Installs cloudflared 2023.4.1`);
             console.log(
                 `You can find releases at https://github.com/cloudflare/cloudflared/releases`,
             );
