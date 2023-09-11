@@ -39,11 +39,11 @@ describe(
     "service",
     () => {
         const TOKEN = process.env.TUNNEL_TOKEN;
-        if (
+        const should_run =
             TOKEN &&
             ["darwin", "linux"].includes(process.platform) &&
-            !(process.platform === "linux" && process.getuid?.() !== 0)
-        ) {
+            !(process.platform === "linux" && process.getuid?.() !== 0);
+        if (should_run) {
             beforeAll(() => {
                 if (service.exists()) {
                     service.uninstall();
@@ -52,7 +52,7 @@ describe(
         }
 
         it("should work", async (ctx) => {
-            if (!TOKEN) {
+            if (!should_run) {
                 ctx.skip();
             }
             expect(service.exists()).toBe(false);
