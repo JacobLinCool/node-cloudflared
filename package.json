@@ -12,7 +12,8 @@
         "docs": "typedoc ./src/lib.ts",
         "format": "prettier --write '**/*.{js,ts,jsx,tsx,json,yml,yaml,md,html}' --ignore-path .gitignore",
         "lint": "eslint .",
-        "postinstall": "node scripts/postinstall.mjs && node lib/cloudflared.js -v"
+        "postinstall": "node scripts/postinstall.mjs && node lib/cloudflared.js -v",
+        "changeset": "changeset"
     },
     "keywords": [
         "cloudflared",
@@ -30,9 +31,12 @@
         "scripts"
     ],
     "devDependencies": {
+        "@changesets/changelog-github": "^0.4.8",
+        "@changesets/cli": "^2.26.2",
         "@types/node": "^18.0.6",
         "@typescript-eslint/eslint-plugin": "^5.30.7",
         "@typescript-eslint/parser": "^5.30.7",
+        "changeset": "^0.2.6",
         "cloudflared": "workspace:*",
         "eslint": "^8.20.0",
         "eslint-config-prettier": "^8.5.0",
@@ -49,5 +53,6 @@
     },
     "bugs": {
         "url": "https://github.com/JacobLinCool/node-cloudflared/issues"
-    }
+    },
+    "packageManager": "pnpm@8.7.5"
 }
