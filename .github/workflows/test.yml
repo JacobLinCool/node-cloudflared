@@ -12,17 +12,26 @@ on:
 jobs:
     test:
         strategy:
+            fail-fast: false
             matrix:
                 os:
                     - ubuntu-latest
                     - windows-latest
                     - macos-latest
+                version:
+                    - "latest"
+                    - "2023.6.1"
+                    - "2023.4.2"
+                    - "2023.2.2"
+                    - "2022.12.1"
 
-        name: "${{ matrix.os }}"
+        name: "${{ matrix.os }} - ${{ matrix.version }}"
         runs-on: ${{ matrix.os }}
+        timeout-minutes: 15
         env:
             VERBOSE: 1
             TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
+            CLOUDFLARED_VERSION: ${{ matrix.version }}
 
         steps:
             - name: Checkout Repository
