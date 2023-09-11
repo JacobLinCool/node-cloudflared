@@ -1,7 +1,7 @@
 import { ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import { bin, install, tunnel, service } from "../lib.js";
-import { describe, it, expect, beforeAll, vi } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 
 process.env.VERBOSE = "1";
 
@@ -25,7 +25,10 @@ describe(
     "tunnel",
     () => {
         it("should create a tunnel", async () => {
-            const { url, connections, child, stop } = tunnel();
+            const { url, connections, child, stop } = tunnel({
+                "--url": "localhost:8080",
+                "--no-autoupdate": "true",
+            });
             expect(await url).toMatch(/https?:\/\/[^\s]+/);
             await connections[0]; // quick tunnel only has one connection
             expect(child).toBeInstanceOf(ChildProcess);
