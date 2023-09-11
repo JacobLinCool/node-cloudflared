@@ -12,6 +12,7 @@ on:
 jobs:
     test:
         strategy:
+            fail-fast: false
             matrix:
                 os:
                     - ubuntu-latest
@@ -26,7 +27,7 @@ jobs:
 
         name: "${{ matrix.os }} - ${{ matrix.version }}"
         runs-on: ${{ matrix.os }}
-        timeout-minutes: 30
+        timeout-minutes: 15
         env:
             VERBOSE: 1
             TUNNEL_TOKEN: ${{ secrets.TUNNEL_TOKEN }}
