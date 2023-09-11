@@ -88,7 +88,10 @@ export async function main(): Promise<void> {
         }
     });
 
-    process.on("SIGINT", () => {
-        sub.kill("SIGINT");
-    });
+    const signals: NodeJS.Signals[] = ["SIGINT", "SIGTERM", "SIGQUIT"];
+    for (const signal of signals) {
+        process.on(signal, () => {
+            sub.kill(signal);
+        });
+    }
 }
