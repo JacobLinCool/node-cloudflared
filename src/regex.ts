@@ -1,6 +1,6 @@
 export const conn_regex = /connection[= ]([a-z0-9-]+)/i;
 export const ip_regex = /ip=([0-9.]+)/;
-export const location_regex = /location=([A-Z]+)/;
+export const location_regex = /location=([A-Za-z0-9]+)/;
 export const index_regex = /connIndex=(\d)/;
 
 export const disconnect_regex = /Unregistered tunnel connection connIndex=(\d)/i;
