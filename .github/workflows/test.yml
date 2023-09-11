@@ -36,5 +36,10 @@ jobs:
             - name: Build
               run: pnpm i && pnpm build
 
-            - name: Test
+            - name: Test (w/ service)
+              run: sudo -E $PNPM_HOME/pnpm test
+              if: matrix.os != 'windows-latest'
+
+            - name: Test (w/o service)
               run: pnpm test
+              if: matrix.os == 'windows-latest'
