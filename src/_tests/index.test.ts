@@ -1,47 +1,60 @@
 import { ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import { bin, install, tunnel, service } from "../lib.js";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 
 process.env.VERBOSE = "1";
 
-jest.setTimeout(60_000);
-
-describe("install", () => {
-    it("should install binary", async () => {
-        if (fs.existsSync(bin)) {
-            fs.unlinkSync(bin);
-        }
-        expect(fs.existsSync(bin)).toBe(false);
-
-        await install(bin);
-        expect(fs.existsSync(bin)).toBe(true);
-    });
-});
-
-describe("tunnel", () => {
-    it("should create a tunnel", async () => {
-        const { url, connections, child, stop } = tunnel();
-        expect(await url).toMatch(/https?:\/\/[^\s]+/);
-        await connections[0]; // quick tunnel only has one connection
-        expect(child).toBeInstanceOf(ChildProcess);
-        stop();
-    });
-});
-
-describe("service", () => {
-    const TOKEN = process.env.TUNNEL_TOKEN;
-    if (
-        TOKEN &&
-        ["darwin", "linux"].includes(process.platform) &&
-        !(process.platform === "linux" && process.getuid?.() !== 0)
-    ) {
-        beforeAll(() => {
-            if (service.exists()) {
-                service.uninstall();
+describe(
+    "install",
+    () => {
+        it("should install binary", async () => {
+            if (fs.existsSync(bin)) {
+                fs.unlinkSync(bin);
             }
-        });
+            expect(fs.existsSync(bin)).toBe(false);
 
-        it("should work", async () => {
+            await install(bin);
+            expect(fs.existsSync(bin)).toBe(true);
+        });
+    },
+    { timeout: 60_000 },
+);
+
+describe(
+    "tunnel",
+    () => {
+        it("should create a tunnel", async () => {
+            const { url, connections, child, stop } = tunnel();
+            expect(await url).toMatch(/https?:\/\/[^\s]+/);
+            await connections[0]; // quick tunnel only has one connection
+            expect(child).toBeInstanceOf(ChildProcess);
+            stop();
+        });
+    },
+    { timeout: 60_000 },
+);
+
+describe(
+    "service",
+    () => {
+        const TOKEN = process.env.TUNNEL_TOKEN;
+        if (
+            TOKEN &&
+            ["darwin", "linux"].includes(process.platform) &&
+            !(process.platform === "linux" && process.getuid?.() !== 0)
+        ) {
+            beforeAll(() => {
+                if (service.exists()) {
+                    service.uninstall();
+                }
+            });
+        }
+
+        it("should work", async (ctx) => {
+            if (!TOKEN) {
+                ctx.skip();
+            }
             expect(service.exists()).toBe(false);
             service.install(TOKEN);
 
@@ -57,5 +70,6 @@ describe("service", () => {
 
             service.uninstall();
         });
-    }
-});
+    },
+    { timeout: 60_000 },
+);
