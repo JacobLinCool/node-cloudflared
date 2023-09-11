@@ -10,62 +10,30 @@ jobs:
     release-npm:
         name: Release NPM (${{ github.ref }})
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            issues: write
+            pull-requests: write
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v3
-              with:
-                  fetch-depth: 0
-
-            - name: Check if Tag on Main
-              run: |
-                  git checkout main
-                  branch=$(git branch main --contains ${{ github.ref }})
-                  git checkout ${{ github.ref }}
-                  if [ -z $branch ]; then
-                      echo "Tag ${{ github.ref }} is not contained in the main branch."
-                      exit 1
-                  fi
 
             - name: Setup PNPM
-              uses: pnpm/action-setup@v2.2.2
+              uses: pnpm/action-setup@v2.4.0
               with:
-                  version: latest
                   run_install: true
 
-            - name: Build & Test
-              run: pnpm build && pnpm test
+            - name: Build
+              run: pnpm build
 
-            - name: Publish
-              run: |
-                  pnpm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
-                  pnpm publish --verbose --no-git-checks
-
-    release-note:
-        name: Release Note (${{ github.ref }})
-        runs-on: ubuntu-latest
-        needs:
-            - release-npm
-        steps:
-            - name: Checkout Repository
-              uses: actions/checkout@v3
+            - name: Create Release Pull Request or Publish to NPM
+              id: changesets
+              uses: changesets/action@v1
               with:
-                  fetch-depth: 0
-
-            - name: Check if Tag on Main
-              run: |
-                  git checkout main
-                  branch=$(git branch main --contains ${{ github.ref }})
-                  git checkout ${{ github.ref }}
-                  if [ -z $branch ]; then
-                      echo "Tag ${{ github.ref }} is not contained in the main branch."
-                      exit 1
-                  fi
-
-            - name: Publish Release
-              uses: "marvinpinto/action-automatic-releases@latest"
-              with:
-                  repo_token: "${{ secrets.GH_TOKEN }}"
-                  prerelease: false
-                  files: |
-                      README.md
-                      LICENSE
+                  publish: pnpm changeset publish
+                  version: pnpm changeset version
+                  title: Release Packages
+                  commit: bump versions
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
