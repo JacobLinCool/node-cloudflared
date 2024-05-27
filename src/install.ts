@@ -13,7 +13,7 @@ const LINUX_URL: Partial<Record<typeof process.arch, string>> = {
 };
 
 const MACOS_URL: Partial<Record<typeof process.arch, string>> = {
-    arm64: "cloudflared-darwin-amd64.tgz",
+    arm64: "cloudflared-darwin-arm64.tgz",
     x64: "cloudflared-darwin-amd64.tgz",
 };
 
