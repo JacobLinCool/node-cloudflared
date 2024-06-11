@@ -78,7 +78,7 @@ export async function main(): Promise<void> {
         console.log("Installed cloudflared to " + (await install(bin)));
     }
 
-    const sub = spawn(bin, args, { shell: true, stdio: "inherit" });
+    const sub = spawn(bin, args, { stdio: "inherit" });
 
     sub.on("exit", (code) => {
         if (typeof code === "number") {
