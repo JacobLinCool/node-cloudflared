@@ -1,5 +1,11 @@
 # cloudflared
 
+## 0.5.2
+
+### Patch Changes
+
+-   [#22](https://github.com/JacobLinCool/node-cloudflared/pull/22) [`2dc1efe`](https://github.com/JacobLinCool/node-cloudflared/commit/2dc1efecc538a5bcf169d09e1f72f02d5bb643d5) Thanks [@koterpillar](https://github.com/koterpillar)! - Don't use shell to start process
+
 ## 0.5.1
 
 ### Patch Changes
