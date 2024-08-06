@@ -13,7 +13,7 @@ const LINUX_URL: Partial<Record<typeof process.arch, string>> = {
 };
 
 const MACOS_URL: Partial<Record<typeof process.arch, string>> = {
-    arm64: "cloudflared-darwin-amd64.tgz",
+    arm64: "cloudflared-darwin-arm64.tgz",
     x64: "cloudflared-darwin-amd64.tgz",
 };
 
@@ -60,10 +60,15 @@ export async function install_linux(to: string, version = CLOUDFLARED_VERSION): 
 }
 
 export async function install_macos(to: string, version = CLOUDFLARED_VERSION): Promise<string> {
-    const file = MACOS_URL[process.arch];
+    let arch = process.arch;
+    if (version !== "latest" && version_number(version) < 20240802) {
+        // arm64 is only supported starting from 2024.8.2
+        arch = "x64";
+    }
+    const file = MACOS_URL[arch];
 
     if (file === undefined) {
-        throw new UnsupportedError("Unsupported architecture: " + process.arch);
+        throw new UnsupportedError("Unsupported architecture: " + arch);
     }
 
     await download(resolve_base(version) + file, `${to}.tgz`);
@@ -129,4 +134,9 @@ function download(url: string, to: string, redirect = 0): Promise<string> {
 
         request.end();
     });
+}
+
+function version_number(semver: string): number {
+    const [major, minor, patch] = semver.split(".").map(Number);
+    return major * 10000 + minor * 100 + patch;
 }
