@@ -1,6 +1,6 @@
 {
     "name": "cloudflared",
-    "version": "0.5.3",
+    "version": "0.6.0",
     "description": "Cloudflared in Node. Which allows you to easily create HTTPS tunnels using Cloudflare's cloudflared. It provides a typed API for creating tunnels and managing the cloudflared binary installation.",
     "main": "./lib/lib.js",
     "types": "./lib/lib.d.ts",
