@@ -1,5 +1,11 @@
 # cloudflared
 
+## 0.6.0
+
+### Minor Changes
+
+- [#28](https://github.com/JacobLinCool/node-cloudflared/pull/28) [`52570e5`](https://github.com/JacobLinCool/node-cloudflared/commit/52570e5f7c1ec1f93cf4ac38a2caae396bb30603) Thanks [@JacobLinCool](https://github.com/JacobLinCool)! - Tunnel class with custom output parser
+
 ## 0.5.3
 
 ### Patch Changes
