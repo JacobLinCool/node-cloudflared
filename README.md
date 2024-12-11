@@ -77,29 +77,30 @@ spawn(bin, ["--version"], { stdio: "inherit" });
 
 Checkout [`examples/tunnel.js`](examples/tunnel.js).
 
+`Tunnel` is inherited from `EventEmitter`, so you can listen to the events it emits, checkout [`examples/events.mjs`](examples/events.mjs).
+
 ```js
-import { tunnel } from "cloudflared";
+import { Tunnel } from "cloudflared";
 
 console.log("Cloudflared Tunnel Example.");
 main();
 
 async function main() {
   // run: cloudflared tunnel --hello-world
-  const { url, connections, child, stop } = tunnel({ "--hello-world": null });
+  const tunnel = Tunnel.quick();
 
   // show the url
+  const url = new Promise((resolve) => tunnel.once("url", resolve));
   console.log("LINK:", await url);
 
-  // wait for the all 4 connections to be established
-  const conns = await Promise.all(connections);
-
-  // show the connections
-  console.log("Connections Ready!", conns);
+  // wait for connection to be established
+  const conn = new Promise((resolve) => tunnel.once("connected", resolve));
+  console.log("CONN:", await conn);
 
   // stop the tunnel after 15 seconds
-  setTimeout(stop, 15_000);
+  setTimeout(tunnel.stop, 15_000);
 
-  child.on("exit", (code) => {
+  tunnel.on("exit", (code) => {
     console.log("tunnel process exited with code", code);
   });
 }
@@ -108,29 +109,12 @@ async function main() {
 ```sh
 ❯ node examples/tunnel.js
 Cloudflared Tunnel Example.
-LINK: https://aimed-our-bite-brought.trycloudflare.com
-Connections Ready! [
-  {
-    id: 'd4681cd9-217d-40e2-9e15-427f9fb77856',
-    ip: '198.41.200.23',
-    location: 'MIA'
-  },
-  {
-    id: 'b40d2cdd-0b99-4838-b1eb-9a58a6999123',
-    ip: '198.41.192.107',
-    location: 'LAX'
-  },
-  {
-    id: '55545211-3f63-4722-99f1-d5fea688dabf',
-    ip: '198.41.200.53',
-    location: 'MIA'
-  },
-  {
-    id: 'f3d5938a-d48c-463c-a4f7-a158782a0ddb',
-    ip: '198.41.192.77',
-    location: 'LAX'
-  }
-]
+LINK: https://mailto-davis-wilderness-facts.trycloudflare.com
+CONN: {
+  id: 'df1b8330-44ea-4ecb-bb93-8a32400f6d1c',
+  ip: '198.41.200.193',
+  location: 'tpe01'
+}
 tunnel process exited with code 0
 ```
 
