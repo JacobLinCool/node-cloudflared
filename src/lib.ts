@@ -1,6 +1,6 @@
-export { bin } from "./constants.js";
-export { install } from "./install.js";
-export { tunnel } from "./tunnel.js";
+export * from "./constants.js";
+export * from "./install.js";
+export * from "./tunnel.js";
 export {
     service,
     identifier,
@@ -8,4 +8,5 @@ export {
     AlreadyInstalledError,
     NotInstalledError,
 } from "./service.js";
-export type { Connection } from "./types.js";
+export type * from "./types.js";
+export * from "./handler.js";

@@ -1,25 +1,23 @@
-import { tunnel } from "cloudflared";
+import { Tunnel } from "cloudflared";
 
 console.log("Cloudflared Tunnel Example.");
 main();
 
 async function main() {
     // run: cloudflared tunnel --hello-world
-    const { url, connections, child, stop } = tunnel({ "--hello-world": null });
+    const tunnel = Tunnel.quick();
 
     // show the url
+    const url = new Promise((resolve) => tunnel.once("url", resolve));
     console.log("LINK:", await url);
 
-    // wait for the all 4 connections to be established
-    const conns = await Promise.all(connections);
-
-    // show the connections
-    console.log("Connections Ready!", conns);
+    const conn = new Promise((resolve) => tunnel.once("connected", resolve));
+    console.log("CONN:", await conn);
 
     // stop the tunnel after 15 seconds
-    setTimeout(stop, 15_000);
+    setTimeout(tunnel.stop, 15_000);
 
-    child.on("exit", (code) => {
+    tunnel.on("exit", (code) => {
         console.log("tunnel process exited with code", code);
     });
 }
