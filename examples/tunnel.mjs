@@ -1,9 +1,15 @@
-import { Tunnel } from "cloudflared";
+import fs from "node:fs";
+import { Tunnel, bin, install } from "cloudflared";
 
 console.log("Cloudflared Tunnel Example.");
 main();
 
 async function main() {
+    if (!fs.existsSync(bin)) {
+        // install cloudflared binary
+        await install(bin)
+    }
+
     // run: cloudflared tunnel --hello-world
     const tunnel = Tunnel.quick();
 
