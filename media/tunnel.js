@@ -1,9 +1,15 @@
-const { Tunnel } = require("cloudflared");
+const fs = require("node:fs");
+const { Tunnel, bin, install } = require("cloudflared");
 
 console.log("Cloudflared Tunnel Example.");
 main();
 
 async function main() {
+    if (!fs.existsSync(bin)) {
+        // install cloudflared binary
+        await install(bin);
+    }
+
     // run: cloudflared tunnel --hello-world
     const tunnel = Tunnel.quick();
 
