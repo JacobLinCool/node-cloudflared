@@ -76,14 +76,10 @@ export class Tunnel extends EventEmitter {
         // cloudflared outputs to stderr, but I think its better to listen to stdout too
         this.on("stdout", (output) => {
             this.processOutput(output);
-        }).on("error", (err) => {
-            this.emit("error", err);
         });
 
         this.on("stderr", (output) => {
             this.processOutput(output);
-        }).on("error", (err) => {
-            this.emit("error", err);
         });
     }
 
