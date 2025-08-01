@@ -1,5 +1,11 @@
 # cloudflared
 
+## 0.7.1
+
+### Patch Changes
+
+- [#35](https://github.com/JacobLinCool/node-cloudflared/pull/35) [`779c35b`](https://github.com/JacobLinCool/node-cloudflared/commit/779c35b22f32addabb237537e02e94c82273db88) Thanks [@JacobLinCool](https://github.com/JacobLinCool)! - Remove redundant error event listeners in Tunnel class
+
 ## 0.7.0
 
 ### Minor Changes
