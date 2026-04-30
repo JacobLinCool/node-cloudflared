@@ -1,5 +1,11 @@
 # cloudflared
 
+## 0.7.2
+
+### Patch Changes
+
+- [`8239b69`](https://github.com/JacobLinCool/node-cloudflared/commit/8239b695605fd5be193c5db4a133a41feb93e530) Thanks [@JacobLinCool](https://github.com/JacobLinCool)! - Update tooling and dev dependencies (pnpm 10, eslint 10, typescript 6, vitest 4, @types/node 25, etc.) and refresh cloudflared test matrix
+
 ## 0.7.1
 
 ### Patch Changes
