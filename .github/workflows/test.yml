@@ -20,10 +20,10 @@ jobs:
                     - macos-latest
                 version:
                     - "latest"
-                    - "2025.6.1"
-                    - "2025.4.2"
-                    - "2025.2.1"
-                    - "2024.12.2"
+                    - "2026.1.2"
+                    - "2025.11.1"
+                    - "2025.9.1"
+                    - "2025.7.0"
 
         name: "${{ matrix.os }} - ${{ matrix.version }}"
         runs-on: ${{ matrix.os }}
