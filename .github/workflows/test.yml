@@ -20,10 +20,10 @@ jobs:
                     - macos-latest
                 version:
                     - "latest"
-                    - "2026.1.2"
+                    - "2026.7.3"
+                    - "2026.5.0"
+                    - "2026.2.0"
                     - "2025.11.1"
-                    - "2025.9.1"
-                    - "2025.7.0"
 
         name: "${{ matrix.os }} - ${{ matrix.version }}"
         runs-on: ${{ matrix.os }}
@@ -35,10 +35,11 @@ jobs:
 
         steps:
             - name: Checkout Repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v7
 
             - name: Setup PNPM
-              uses: pnpm/action-setup@v4
+              id: pnpm
+              uses: pnpm/action-setup@v6
               with:
                   run_install: true
 
@@ -46,7 +47,7 @@ jobs:
               run: pnpm build
 
             - name: Test (w/ service)
-              run: sudo -E $PNPM_HOME/pnpm test
+              run: sudo -E ${{ steps.pnpm.outputs.bin_dest }}/pnpm test
               if: matrix.os != 'windows-latest'
 
             - name: Test (w/o service)

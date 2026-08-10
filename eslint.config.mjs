@@ -15,14 +15,7 @@ const compat = new FlatCompat({
 
 export default [
     {
-        ignores: [
-            "**/node_modules",
-            "**/lib",
-            "**/docs",
-            "**/.eslintrc.js",
-            "**/jest.config.cjs",
-            "**/examples",
-        ],
+        ignores: ["**/node_modules", "**/lib", "**/docs", "**/examples"],
     },
     ...compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"),
     {
@@ -41,7 +34,7 @@ export default [
                     allowArgumentsExplicitlyTypedAsAny: true,
                 },
             ],
-            "@typescript-eslint/no-unused-expressions": "warn",
+            "@typescript-eslint/no-unused-expressions": "error",
         },
     },
 ];

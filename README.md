@@ -75,7 +75,7 @@ spawn(bin, ["--version"], { stdio: "inherit" });
 
 ### Tunnel
 
-Checkout [`examples/tunnel.js`](examples/tunnel.js).
+Checkout [`examples/tunnel.mjs`](examples/tunnel.mjs) (or [`examples/tunnel.js`](examples/tunnel.js) for CommonJS).
 
 `Tunnel` is inherited from `EventEmitter`, so you can listen to the events it emits, checkout [`examples/events.mjs`](examples/events.mjs).
 
@@ -107,7 +107,7 @@ async function main() {
 ```
 
 ```sh
-❯ node examples/tunnel.js
+❯ node examples/tunnel.mjs
 Cloudflared Tunnel Example.
 LINK: https://mailto-davis-wilderness-facts.trycloudflare.com
 CONN: {
@@ -120,7 +120,7 @@ tunnel process exited with code 0
 
 ### Service
 
-Checkout [`examples/service.js`](examples/service.js).
+Checkout [`examples/service.mjs`](examples/service.mjs) (or [`examples/service.js`](examples/service.js) for CommonJS).
 
 ```js
 import { service } from "cloudflared";
@@ -143,7 +143,7 @@ async function main() {
 ```
 
 ```sh
-❯ node examples/service.js
+❯ node examples/service.mjs
 Cloudflared Service Example.
 Service is running.
   - http://localhost:12345 -> sub.example.com

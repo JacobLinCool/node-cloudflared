@@ -1,2 +1,13 @@
 packages:
     - .
+
+allowBuilds:
+    esbuild: true
+
+# `@typescript-eslint/project-service` depends on its siblings with a caret range,
+# which pulls in releases too new for pnpm's `minimumReleaseAge` supply-chain check.
+# Pin the whole set to the version the direct dependencies use; drop this once the
+# next typescript-eslint bump makes the ranges line up again.
+overrides:
+    "@typescript-eslint/types": 8.66.0
+    "@typescript-eslint/tsconfig-utils": 8.66.0

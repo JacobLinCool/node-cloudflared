@@ -10,13 +10,15 @@ jobs:
     docs:
         name: docs
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
 
         steps:
             - name: Checkout Repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v7
 
             - name: Setup PNPM
-              uses: pnpm/action-setup@v4
+              uses: pnpm/action-setup@v6
               with:
                   run_install: true
 
@@ -26,5 +28,5 @@ jobs:
             - name: Deploy
               uses: peaceiris/actions-gh-pages@v4
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN  }}
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
                   publish_dir: "./docs"
