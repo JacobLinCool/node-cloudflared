@@ -5,37 +5,29 @@ import { describe, it, expect, beforeAll } from "vitest";
 
 process.env.VERBOSE = "1";
 
-describe(
-    "install",
-    { timeout: 60_000 },
-    () => {
-        it("should install binary", async () => {
-            if (fs.existsSync(bin)) {
-                fs.unlinkSync(bin);
-            }
-            expect(fs.existsSync(bin)).toBe(false);
+describe("install", { timeout: 60_000 }, () => {
+    it("should install binary", async () => {
+        if (fs.existsSync(bin)) {
+            fs.unlinkSync(bin);
+        }
+        expect(fs.existsSync(bin)).toBe(false);
 
-            await install(bin);
-            expect(fs.existsSync(bin)).toBe(true);
-        });
-    },
-);
+        await install(bin);
+        expect(fs.existsSync(bin)).toBe(true);
+    });
+});
 
-describe(
-    "tunnel",
-    { timeout: 60_000 },
-    () => {
-        it("should create a tunnel", async () => {
-            const tunnel = new Tunnel(["tunnel", "--url", "localhost:8080", "--no-autoupdate"]);
-            const url = new Promise((resolve) => tunnel.once("url", resolve));
-            expect(await url).toMatch(/https?:\/\/[^\s]+/);
-            const conn = new Promise((resolve) => tunnel.once("connected", resolve));
-            await conn; // quick tunnel only has one connection
-            expect(tunnel.process).toBeInstanceOf(ChildProcess);
-            tunnel.stop();
-        });
-    },
-);
+describe("tunnel", { timeout: 60_000 }, () => {
+    it("should create a tunnel", async () => {
+        const tunnel = new Tunnel(["tunnel", "--url", "localhost:8080", "--no-autoupdate"]);
+        const url = new Promise((resolve) => tunnel.once("url", resolve));
+        expect(await url).toMatch(/https?:\/\/[^\s]+/);
+        const conn = new Promise((resolve) => tunnel.once("connected", resolve));
+        await conn; // quick tunnel only has one connection
+        expect(tunnel.process).toBeInstanceOf(ChildProcess);
+        tunnel.stop();
+    });
+});
 
 describe("service", { timeout: 60_000 }, () => {
     const TOKEN = process.env.TUNNEL_TOKEN;

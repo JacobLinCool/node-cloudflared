@@ -15,12 +15,15 @@ jobs:
             contents: write
             issues: write
             pull-requests: write
+            # Lets npm mint a short-lived OIDC token instead of using a long-lived
+            # NPM_TOKEN. Requires a Trusted Publisher pointing at this workflow file.
+            id-token: write
         steps:
             - name: Checkout Repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v7
 
             - name: Setup PNPM
-              uses: pnpm/action-setup@v4
+              uses: pnpm/action-setup@v6
               with:
                   run_install: true
 
@@ -36,5 +39,6 @@ jobs:
                   title: Release Packages
                   commit: bump versions
               env:
+                  # No NPM_TOKEN on purpose: changesets/action writes an .npmrc when it
+                  # sees one, and that credential would take precedence over OIDC.
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

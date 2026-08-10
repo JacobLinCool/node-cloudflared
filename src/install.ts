@@ -72,7 +72,7 @@ export async function install_macos(to: string, version = CLOUDFLARED_VERSION): 
     }
 
     await download(resolve_base(version) + file, `${to}.tgz`);
-    process.env.VERBOSE && console.log(`Extracting to ${to}`);
+    if (process.env.VERBOSE) console.log(`Extracting to ${to}`);
     execSync(`tar -xzf ${path.basename(`${to}.tgz`)}`, { cwd: path.dirname(to) });
     fs.unlinkSync(`${to}.tgz`);
     fs.renameSync(`${path.dirname(to)}/cloudflared`, to);
@@ -90,10 +90,8 @@ export async function install_windows(to: string, version = CLOUDFLARED_VERSION)
 }
 
 function download(url: string, to: string, redirect = 0): Promise<string> {
-    if (redirect === 0) {
-        process.env.VERBOSE && console.log(`Downloading ${url} to ${to}`);
-    } else {
-        process.env.VERBOSE && console.log(`Redirecting to ${url}`);
+    if (process.env.VERBOSE) {
+        console.log(redirect === 0 ? `Downloading ${url} to ${to}` : `Redirecting to ${url}`);
     }
 
     if (!fs.existsSync(path.dirname(to))) {

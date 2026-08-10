@@ -20,8 +20,8 @@ export async function main(): Promise<void> {
         if (args[1] === "install") {
             const version = args[2] || CLOUDFLARED_VERSION;
             if (version !== "latest") {
-                console.log(`Installing cloudflared ${args[2]}`);
-                console.log(await install(bin, args[2]));
+                console.log(`Installing cloudflared ${version}`);
+                console.log(await install(bin, version));
             } else {
                 console.log("Installing latest version of cloudflared");
                 await install(bin, version);

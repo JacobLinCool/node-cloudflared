@@ -9,10 +9,10 @@
         "test": "vitest",
         "dev": "tsup --watch",
         "build": "tsup",
-        "docs": "typedoc ./src/lib.ts",
-        "format": "prettier --write '**/*.{js,ts,jsx,tsx,json,yml,yaml,md,html}' --ignore-path .gitignore",
+        "docs": "typedoc",
+        "format": "prettier --write '**/*.{js,ts,jsx,tsx,json,yml,yaml,md,html}' --ignore-path .gitignore --ignore-path .prettierignore",
         "lint": "eslint .",
-        "postinstall": "node scripts/postinstall.mjs && node lib/cloudflared.js bin install latest",
+        "postinstall": "node scripts/postinstall.mjs && node lib/cloudflared.js bin install",
         "changeset": "changeset"
     },
     "keywords": [
@@ -31,22 +31,21 @@
         "scripts"
     ],
     "devDependencies": {
-        "@changesets/changelog-github": "^0.6.0",
-        "@changesets/cli": "^2.31.0",
-        "@eslint/eslintrc": "^3.3.5",
+        "@changesets/changelog-github": "^0.7.0",
+        "@changesets/cli": "^2.31.1",
+        "@eslint/eslintrc": "^3.3.6",
         "@eslint/js": "^10.0.1",
-        "@types/node": "^25.6.0",
-        "@typescript-eslint/eslint-plugin": "^8.59.1",
-        "@typescript-eslint/parser": "^8.59.1",
-        "changeset": "^0.2.6",
+        "@types/node": "^26.2.0",
+        "@typescript-eslint/eslint-plugin": "~8.66.0",
+        "@typescript-eslint/parser": "~8.66.0",
         "cloudflared": "workspace:*",
-        "eslint": "^10.2.1",
+        "eslint": "^10.8.1",
         "eslint-config-prettier": "^10.1.8",
-        "prettier": "^3.8.3",
+        "prettier": "^3.9.6",
         "tsup": "^8.5.1",
-        "typedoc": "^0.28.19",
+        "typedoc": "^0.28.20",
         "typescript": "^6.0.3",
-        "vitest": "^4.1.5"
+        "vitest": "^4.1.10"
     },
     "homepage": "https://github.com/JacobLinCool/node-cloudflared#readme",
     "repository": {
@@ -56,10 +55,5 @@
     "bugs": {
         "url": "https://github.com/JacobLinCool/node-cloudflared/issues"
     },
-    "packageManager": "pnpm@10.33.2",
-    "pnpm": {
-        "onlyBuiltDependencies": [
-            "esbuild"
-        ]
-    }
+    "packageManager": "pnpm@11.21.0"
 }
