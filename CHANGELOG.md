@@ -1,5 +1,13 @@
 # cloudflared
 
+## 0.7.3
+
+### Patch Changes
+
+- [#40](https://github.com/JacobLinCool/node-cloudflared/pull/40) [`9844a3a`](https://github.com/JacobLinCool/node-cloudflared/commit/9844a3a574fca9e9f6175a3e33dc308c10505eb0) Thanks [@JacobLinCool](https://github.com/JacobLinCool)! - Fix `CLOUDFLARED_VERSION` being ignored during installation. The `postinstall` script hardcoded `bin install latest`, so the environment variable documented in the README had no effect on the version that got installed. Installing an explicit version also printed `Installing cloudflared undefined` because the message read the raw argument instead of the resolved version.
+
+- [#40](https://github.com/JacobLinCool/node-cloudflared/pull/40) [`9844a3a`](https://github.com/JacobLinCool/node-cloudflared/commit/9844a3a574fca9e9f6175a3e33dc308c10505eb0) Thanks [@JacobLinCool](https://github.com/JacobLinCool)! - Update the toolchain and CI. Publishing now uses npm trusted publishing (OIDC) instead of a long-lived `NPM_TOKEN`, which npm revoked along with all classic tokens. pnpm moves to 11 for its native OIDC support, so its settings move from `package.json` to `pnpm-workspace.yaml`. Also bumps eslint, vitest, prettier, typedoc and `@types/node`, drops the unused `changeset` package (an unrelated LevelDB utility, not the changesets CLI), moves typedoc to a config file so the `@platform` tag no longer warns, upgrades the GitHub Actions to Node 24 runtimes, and refreshes the cloudflared test matrix.
+
 ## 0.7.2
 
 ### Patch Changes
