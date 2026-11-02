@@ -2,8 +2,8 @@
 
 A Node.js package that allows you to easily create HTTPS tunnels using Cloudflare's `cloudflared` command-line tool. It provides a typed API for creating tunnels and managing the `cloudflared` binary installation.
 
-> This tool will automatically install the [latest version of `cloudflared`](https://github.com/cloudflare/cloudflared/releases/latest) (or `CLOUDFLARED_VERSION` env var if exists) at the first time.
-> Then, it just passes down the command to `cloudflared`.
+> This tool automatically installs the [latest version of `cloudflared`](https://github.com/cloudflare/cloudflared/releases/latest) on first use and updates to the latest version at most once every 30 days.
+> Set `CLOUDFLARED_VERSION` to install an exact version and disable automatic updates.
 
 ## Installation
 
@@ -28,6 +28,9 @@ yarn global add cloudflared
 ```
 
 > If `CLOUDFLARED_VERSION` env var is set, it will install the specified version of `cloudflared`, otherwise it will install the latest version.
+
+Set `CLOUDFLARED_UPDATE_INTERVAL` to the interval in milliseconds to change the CLI's
+update frequency, or `0` to disable periodic updates.
 
 ## CLI Usage
 
@@ -72,6 +75,34 @@ spawn(bin, ["--version"], { stdio: "inherit" });
 
 - `bin`: The path of the binary.
 - `install`: A function that installs the binary to the given path.
+
+### Automatic updates
+
+Library consumers can pass options to `install` before spawning the binary or
+creating a `Tunnel`. Synchronous `Tunnel` constructors do not check for updates.
+
+```js
+import { bin, install } from "cloudflared";
+import { spawn } from "node:child_process";
+
+await install(bin, {
+  minimumVersion: "2026.10.2",
+});
+spawn(bin, ["--version"], { stdio: "inherit" });
+```
+
+- `minimumVersion`: Upgrade an older binary immediately, even if a periodic check
+  is not due. Missing or older binaries install the latest release, unless a
+  version is pinned.
+- `checkInterval`: Milliseconds between optional update attempts. Omitting it or
+  passing `undefined` uses the default of 30 days. Set it to `0` to disable periodic
+  updates while still installing missing binaries and enforcing the minimum.
+
+`CLOUDFLARED_VERSION` pins take precedence over periodic updates. A pin below
+`minimumVersion` is rejected.
+
+For compatibility, an exact version can be installed with `install(path, version)`.
+Passing a version string or omitting the second argument always downloads the binary.
 
 ### Tunnel
 

@@ -1,4 +1,4 @@
-import { ChildProcess } from "node:child_process";
+import { ChildProcess, execFileSync } from "node:child_process";
 import fs from "node:fs";
 import { Tunnel, bin, install, service } from "../lib.js";
 import { describe, it, expect, beforeAll } from "vitest";
@@ -14,6 +14,9 @@ describe("install", { timeout: 60_000 }, () => {
 
         await install(bin);
         expect(fs.existsSync(bin)).toBe(true);
+        expect(execFileSync(bin, ["--version"], { encoding: "utf8" })).toMatch(
+            /^cloudflared version \d+\.\d+\.\d+/,
+        );
     });
 });
 

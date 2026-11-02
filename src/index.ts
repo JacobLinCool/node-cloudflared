@@ -74,9 +74,13 @@ export async function main(): Promise<void> {
         }
     }
 
-    if (!fs.existsSync(bin)) {
-        console.log("Installed cloudflared to " + (await install(bin)));
-    }
+    await install(bin, {
+        checkInterval: process.env.CLOUDFLARED_BIN
+            ? 0
+            : process.env.CLOUDFLARED_UPDATE_INTERVAL === undefined
+              ? undefined
+              : Number(process.env.CLOUDFLARED_UPDATE_INTERVAL),
+    });
 
     const sub = spawn(bin, args, { stdio: "inherit" });
 
