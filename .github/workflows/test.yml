@@ -47,7 +47,7 @@ jobs:
               run: pnpm build
 
             - name: Test (w/ service)
-              run: sudo -E ${{ steps.pnpm.outputs.bin_dest }}/pnpm test
+              run: sudo --preserve-env=CI,VERBOSE,CLOUDFLARED_VERSION,TUNNEL_TOKEN,PNPM_HOME ${{ steps.pnpm.outputs.bin_dest }}/pnpm test
               if: matrix.os != 'windows-latest'
 
             - name: Test (w/o service)
