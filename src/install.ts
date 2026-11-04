@@ -1,9 +1,20 @@
+import { execFile, execSync } from "node:child_process";
 import fs from "node:fs";
-import path from "node:path";
 import https from "node:https";
-import { execSync } from "node:child_process";
+import path from "node:path";
+import { pipeline } from "node:stream";
+import { promisify } from "node:util";
 import { CLOUDFLARED_VERSION, RELEASE_BASE } from "./constants";
 import { UnsupportedError } from "./error";
+
+const exec = promisify(execFile);
+
+export interface InstallOptions {
+    /** Always upgrade binaries older than this version, regardless of the check interval. */
+    minimumVersion?: string;
+    /** Enable periodic updates to the newest version by specifying the period in milliseconds. */
+    checkInterval?: number;
+}
 
 const LINUX_URL: Partial<Record<typeof process.arch, string>> = {
     arm64: "cloudflared-linux-arm64",
@@ -31,11 +42,80 @@ function resolve_base(version: string): string {
 
 /**
  * Install cloudflared to the given path.
+ * Pass a version string (or omit it) to always download.
+ * Pass options to install only when missing, below the minimum, or to periodically reinstall an updated version.
+ * Optional refresh failures keep the installed binary; required installations throw.
  * @param to The path to the binary to install.
- * @param version The version of cloudflared to install.
- * @returns The path to the binary that was installed.
+ * @param version A version to download, or options for conditional installation.
+ * @returns The path to the installed binary.
  */
-export async function install(to: string, version = CLOUDFLARED_VERSION): Promise<string> {
+export async function install(
+    to: string,
+    version: string | InstallOptions = CLOUDFLARED_VERSION,
+): Promise<string> {
+    if (typeof version === "string") {
+        return installExact(to, version);
+    }
+
+    const { minimumVersion, checkInterval } = version;
+    if (checkInterval !== undefined && (!Number.isFinite(checkInterval) || checkInterval <= 0)) {
+        throw new Error("checkInterval must be a finite, positive number");
+    }
+    const pinned = CLOUDFLARED_VERSION !== "latest" ? CLOUDFLARED_VERSION : undefined;
+    if (minimumVersion !== undefined) validateVersion(minimumVersion);
+    if (pinned) {
+        validateVersion(pinned);
+        if (minimumVersion && compareVersions(pinned, minimumVersion) < 0) {
+            throw new Error("CLOUDFLARED_VERSION is older than minimumVersion");
+        }
+    }
+
+    const current = await binaryVersion(to).catch(() => undefined);
+    const required =
+        !current ||
+        (pinned !== undefined && current !== pinned) ||
+        (minimumVersion !== undefined && compareVersions(current, minimumVersion) < 0);
+    const checked = `${to}.last-check`;
+
+    if (!required) {
+        if (pinned || checkInterval === undefined) return to;
+        const lastCheck = fs.existsSync(checked) ? checked : to;
+        if (Date.now() - fs.statSync(lastCheck).mtimeMs < checkInterval) return to;
+    }
+
+    let temporary: string | undefined;
+    try {
+        fs.mkdirSync(path.dirname(to), { recursive: true });
+        // Record attempts too, so offline users do not retry a refresh on every invocation.
+        fs.writeFileSync(checked, "");
+        temporary = fs.mkdtempSync(path.join(path.dirname(to), ".cloudflared-"));
+        const candidate = path.join(
+            temporary,
+            process.platform === "win32" ? "cloudflared.exe" : "cloudflared",
+        );
+        await installExact(candidate, pinned || "latest");
+        const downloaded = await binaryVersion(candidate);
+        if (
+            (pinned && downloaded !== pinned) ||
+            (minimumVersion && compareVersions(downloaded, minimumVersion) < 0)
+        ) {
+            throw new Error(
+                `Downloaded cloudflared ${downloaded} does not meet the requested version`,
+            );
+        }
+        // Never downgrade a working binary during an optional refresh.
+        if (!required && current && compareVersions(downloaded, current) <= 0) return to;
+        fs.renameSync(candidate, to);
+    } catch (error) {
+        if (required) throw error;
+        if (process.env.VERBOSE) console.warn("Could not refresh cloudflared:", error);
+    } finally {
+        if (temporary) fs.rmSync(temporary, { recursive: true, force: true });
+    }
+    return to;
+}
+
+async function installExact(to: string, version: string): Promise<string> {
     if (process.platform === "linux") {
         return install_linux(to, version);
     } else if (process.platform === "darwin") {
@@ -61,7 +141,7 @@ export async function install_linux(to: string, version = CLOUDFLARED_VERSION): 
 
 export async function install_macos(to: string, version = CLOUDFLARED_VERSION): Promise<string> {
     let arch = process.arch;
-    if (version !== "latest" && version_number(version) < 20240802) {
+    if (version !== "latest" && compareVersions(version, "2024.8.2") < 0) {
         // arm64 is only supported starting from 2024.8.2
         arch = "x64";
     }
@@ -111,15 +191,13 @@ function download(url: string, to: string, redirect = 0): Promise<string> {
             if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
                 const file = fs.createWriteStream(to);
 
-                file.on("finish", () => {
-                    file.close(() => resolve(to));
+                pipeline(res, file, (err) => {
+                    if (err) {
+                        fs.unlink(to, () => reject(err));
+                    } else {
+                        resolve(to);
+                    }
                 });
-
-                file.on("error", (err) => {
-                    fs.unlink(to, () => reject(err));
-                });
-
-                res.pipe(file);
             } else {
                 request.destroy();
                 reject(new Error(`HTTP response with status code: ${res.statusCode}`));
@@ -129,12 +207,31 @@ function download(url: string, to: string, redirect = 0): Promise<string> {
         request.on("error", (err) => {
             reject(err);
         });
+        request.setTimeout(30_000, () =>
+            request.destroy(new Error("cloudflared download timed out")),
+        );
 
         request.end();
     });
 }
 
-function version_number(semver: string): number {
-    const [major, minor, patch] = semver.split(".").map(Number);
-    return major * 10000 + minor * 100 + patch;
+async function binaryVersion(file: string): Promise<string> {
+    const { stdout } = await exec(file, ["--version"], { timeout: 5_000, windowsHide: true });
+    const match = /^cloudflared version (\d+\.\d+\.\d+)(?:\s|$)/.exec(stdout);
+    if (!match) throw new Error(`Cannot read cloudflared version from ${file}`);
+    return match[1];
+}
+
+function validateVersion(version: string): void {
+    if (!/^\d+\.\d+\.\d+$/.test(version)) {
+        throw new Error(`Invalid cloudflared version: ${version}`);
+    }
+}
+
+function compareVersions(left: string, right: string): number {
+    validateVersion(left);
+    validateVersion(right);
+    const a = left.split(".").map(Number);
+    const b = right.split(".").map(Number);
+    return a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
 }
