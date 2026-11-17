@@ -2,8 +2,8 @@
 
 A Node.js package that allows you to easily create HTTPS tunnels using Cloudflare's `cloudflared` command-line tool. It provides a typed API for creating tunnels and managing the `cloudflared` binary installation.
 
-> This tool will automatically install the [latest version of `cloudflared`](https://github.com/cloudflare/cloudflared/releases/latest) (or `CLOUDFLARED_VERSION` env var if exists) at the first time.
-> Then, it just passes down the command to `cloudflared`.
+> This tool automatically installs the [latest version of `cloudflared`](https://github.com/cloudflare/cloudflared/releases/latest) on first use.
+> Set `CLOUDFLARED_VERSION` to install an exact version.
 
 ## Installation
 
@@ -27,7 +27,12 @@ npm i -g cloudflared
 yarn global add cloudflared
 ```
 
+The CLI downloads a missing binary on first run. To install it manually run `cloudflared bin install`.
+
 > If `CLOUDFLARED_VERSION` env var is set, it will install the specified version of `cloudflared`, otherwise it will install the latest version.
+
+Set `CLOUDFLARED_UPDATE_INTERVAL` to a positive interval in milliseconds to enable
+periodic CLI updates. For example, `2592000000` updates at most once every 30 days.
 
 ## CLI Usage
 
@@ -73,6 +78,35 @@ spawn(bin, ["--version"], { stdio: "inherit" });
 - `bin`: The path of the binary.
 - `install`: A function that installs the binary to the given path.
 
+### Automatic updates
+
+Library consumers can pass options to `install` before spawning the binary or
+creating a `Tunnel`. Synchronous `Tunnel` constructors do not check for updates.
+
+```js
+import { bin, install } from "cloudflared";
+import { spawn } from "node:child_process";
+
+await install(bin, {
+  minimumVersion: "2026.10.2",
+  checkInterval: 30 * 24 * 60 * 60 * 1000,
+});
+spawn(bin, ["--version"], { stdio: "inherit" });
+```
+
+- `minimumVersion`: Upgrade an older binary immediately, even if a periodic check
+  is not due. Missing or older binaries install the latest release, unless a
+  version is pinned.
+- `checkInterval`: Enable periodic updates to the newest version by specifying
+  the period in milliseconds.
+
+`CLOUDFLARED_VERSION` pins take precedence over periodic updates. A pin below
+`minimumVersion` is rejected.
+
+An exact version can be installed with `install(path, version)`.
+This form and `install(path)` reinstall the binary even if it is already present.
+Pass an options object to reuse a suitable installed binary.
+
 ### Tunnel
 
 Checkout [`examples/tunnel.mjs`](examples/tunnel.mjs) (or [`examples/tunnel.js`](examples/tunnel.js) for CommonJS).
@@ -80,12 +114,17 @@ Checkout [`examples/tunnel.mjs`](examples/tunnel.mjs) (or [`examples/tunnel.js`]
 `Tunnel` is inherited from `EventEmitter`, so you can listen to the events it emits, checkout [`examples/events.mjs`](examples/events.mjs).
 
 ```js
-import { Tunnel } from "cloudflared";
+import { Tunnel, bin, install } from "cloudflared";
+import fs from "node:fs";
 
 console.log("Cloudflared Tunnel Example.");
 main();
 
 async function main() {
+  if (!fs.existsSync(bin)) {
+    await install(bin);
+  }
+
   // run: cloudflared tunnel --hello-world
   const tunnel = Tunnel.quick();
 
