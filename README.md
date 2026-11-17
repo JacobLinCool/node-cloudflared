@@ -27,6 +27,8 @@ npm i -g cloudflared
 yarn global add cloudflared
 ```
 
+The CLI downloads a missing binary on first run. To install it manually run `cloudflared bin install`.
+
 > If `CLOUDFLARED_VERSION` env var is set, it will install the specified version of `cloudflared`, otherwise it will install the latest version.
 
 Set `CLOUDFLARED_UPDATE_INTERVAL` to a positive interval in milliseconds to enable
@@ -112,12 +114,17 @@ Checkout [`examples/tunnel.mjs`](examples/tunnel.mjs) (or [`examples/tunnel.js`]
 `Tunnel` is inherited from `EventEmitter`, so you can listen to the events it emits, checkout [`examples/events.mjs`](examples/events.mjs).
 
 ```js
-import { Tunnel } from "cloudflared";
+import { Tunnel, bin, install } from "cloudflared";
+import fs from "node:fs";
 
 console.log("Cloudflared Tunnel Example.");
 main();
 
 async function main() {
+  if (!fs.existsSync(bin)) {
+    await install(bin);
+  }
+
   // run: cloudflared tunnel --hello-world
   const tunnel = Tunnel.quick();
 
